@@ -1,15 +1,29 @@
 {
-    "name": "denvolj/php-pact",
+    "name": "pact/pact-php",
     "type": "library",
-    "description": "PHP SDK for pact.im API",
-    "keywords": ["sdk", "library", "pact"],
+    "description": "PHP library for pact.im",
+    "keywords": ["library", "pact"],
     "homepage": "https://pact.im",
     "license": "MIT",
     "authors": [
         {
-            "name": "Volzhankin Denis",
-            "email": "boecspecops@gmail.com",
-            "role": "Developer"
+            "name": "DenVolzhankin & contributors",
+            "homepage": "https://github.com/denvolj/php-pact"
         }
-    ]
+    ],
+    "require": {
+      "php": ">=5.6.0",
+      "ext-curl": "*",
+      "ext-json": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Pact\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Pact\\": "tests/"
+        }
+    }
 }
