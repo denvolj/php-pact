@@ -1,0 +1,15 @@
+{
+    "name": "denvolj/php-pact",
+    "type": "library",
+    "description": "PHP SDK for pact.im API",
+    "keywords": ["sdk", "library", "pact"],
+    "homepage": "https://pact.im",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Volzhankin Denis",
+            "email": "boecspecops@gmail.com",
+            "role": "Developer"
+        }
+    ]
+}
