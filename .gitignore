@@ -1,0 +1,6 @@
+.vscode/*
+ToDo
+
+vendor/*
+composer.lock
+tests/**/*.sensitive.json
