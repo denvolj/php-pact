@@ -1,7 +1,7 @@
 # php-pact
 A PHP library for Pact.im API
 
-##installation##
+## Installation
 composer require denvolj/pact-im-php
 
 ##Include in project##
@@ -12,7 +12,7 @@ require_once('vendor/autoload.php');
 use Pact\PactClientBase;`
 ```
 
-##Usage##
+## Usage
 ```php
 // your top-secret token
 $token = '...';
@@ -24,13 +24,13 @@ $company = <...>;
 $conversation = <...>;
 ```
 
-###Client initialization###
+### Client initialization
 `$client = new PactClientBase($token);`
 
-###Receive messages###
+### Receive messages
 `$messages = $client->messages->getMessages($company, $conversation);`
 
-###Attach files###
+### Attach files
 ```php
 $fennec_png = __DIR__ . '/fennec.png';
 $fun_png = __DIR__ . '/fun.png';
@@ -39,7 +39,7 @@ $attach_1 = $client->messages->uploadAttachment($company, $conversation, $fennec
 $attach_2 = $client->messages->uploadAttachment($company, $conversation, $fun_png);
 ```
 
-###Sent file with attachments###
+### Sent file with attachments 
 ```php
 $client->messages->sendMessage($company, $conversation, 'Hello World!', [
     $attach_1->external_id,
