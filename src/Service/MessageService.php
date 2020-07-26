@@ -2,12 +2,38 @@
 
 namespace Pact\Service;
 
+use Pact\Service\MessageApiObject;
+use Pact\Exception\InvalidArgumentException;
 use Pact\HttpClient\HttpMethods;
-use Pact\HttpClient\ApiRequest;
 use PHPUnit\Util\Json;
 
 class MessageService extends AbstractService
 {
+    protected static $endpoint = 'companies/%s/conversations/%s/messages';
+
+
+    /**
+     * Creates new message related to company and conversation
+     * 
+     * @example $svc->createMessage($comp_id, $chan_id)
+     *              ->setBody('Hello World!')
+     *              ->attachFile($fileresource)
+     *              ->attachFile($url_to_file)
+     *              ->send();
+     * @param int Id of company in Pact
+     * @param int Id of conversation (channel) in Pact
+     * @return MessageApiObject
+     */
+    public function createMessage($companyId, $conversationId): MessageApiObject
+    {
+        $message = new MessageApiObject();
+        $message->setCompanyId($companyId)
+            ->setChannelId($conversationId);
+
+        return $message;
+    }
+
+
     /**
      * Get conversation messages
      * @see https://pact-im.github.io/api-doc/#get-conversation-messages
@@ -20,20 +46,19 @@ class MessageService extends AbstractService
      * @param string We sort results by created_at. Change sorting direction. Avilable values: asc, desc. Default: asc.
      * @return Json|null
      */
-    public function getMessages($company_id, $conversation_id, string $from=null, int $per=null, string $sort=null)
+    public function getMessages($companyId, $conversationId, string $from=null, int $per=null, string $sort=null)
     {
-        $path = 'companies/%s/conversations/%s/messages';
         $query = ['from' => $from, 'per' => $per, 'sort' => $sort];
 
         if ($per !== null && ($per < 1 || $per > 100)) {
-            throw new \InvalidArgumentException('Number of fetching elements must be between 1 and 100.');
+            throw new InvalidArgumentException('Number of fetching elements must be between 1 and 100.');
         }
 
         if ($sort !== null && (0 !== strcmp('asc', $sort) || 0 !== strcmp('desc', $sort))) {
-            throw new \InvalidArgumentException('Sort parameter must be asc or desc');
+            throw new InvalidArgumentException('Sort parameter must be asc or desc');
         }
 
-        $response = $this->request(HttpMethods::GET, static::buildPath($path, $company_id, $conversation_id), $query);
+        $response = $this->request(HttpMethods::GET, static::buildPath(static::$endpoint, $companyId, $conversationId), $query);
         if ($response->isOK()) {
             return json_decode($response->getContent())->data;
         }
@@ -47,32 +72,12 @@ class MessageService extends AbstractService
      * @param string Message text
      * @param array<int>|null attachments
      */
-    public function sendMessage($company_id, $conversation_id, $message, $attachments = null)
+    public function sendMessage($companyId, $conversationId, $message, $attachments = null)
     {
-        $path = 'companies/%s/conversations/%s/messages';
-        $response = $this->request(HttpMethods::POST, static::buildPath($path, $company_id, $conversation_id), [], http_build_query([
+        $response = $this->request(HttpMethods::POST, static::buildPath(static::$endpoint, $companyId, $conversationId), [], http_build_query([
             'message' =>  $message,
             'attachments_ids' => $attachments
         ]));
-
-        if ($response->isOK()) {
-            return json_decode($response->getContent())->data;
-        }
-        return null;
-    }
-
-    /**
-     * @param int id of the company
-     * @param int id of the conversation
-     * @param string attachment location
-     * @return Json|null
-     */
-    public function uploadAttachment($company_id, $conversation_id, $attachment)
-    {
-        $path = 'companies/%s/conversations/%s/messages/attachments';
-        $response = $this->request(HttpMethods::POST, static::buildPath($path, $company_id, $conversation_id), [], [
-            'file' => $attachment
-        ]);
 
         if ($response->isOK()) {
             return json_decode($response->getContent())->data;

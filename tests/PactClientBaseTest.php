@@ -12,6 +12,6 @@ class PactClientBaseTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectErrorMessage('API token can\'t be empty string');
 
-        $client = new PactClientBase('');
+        new PactClientBase('');
     }
 }

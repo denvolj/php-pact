@@ -6,5 +6,5 @@ use Pact\HttpClient\Request;
 
 interface PactClientInterface
 {
-    public function request(string $uri, Request $request);
+    public function request(string $method, string $uri, Request $request);
 }

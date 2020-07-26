@@ -72,7 +72,7 @@ class MessageServiceTest extends TestCase
         $this->assertObjectHasAttribute('external_id', $response);
     }
 
-    public function testValidSendMessageWithAttachmentShoultReturnOK()
+    public function testValidSendMessageWithAttachmentShouldReturnOK()
     {
         $file = __DIR__ . '/../data/fennec.png';
         $response = $this->pact_client->messages->uploadAttachment(static::$company_id, static::$conversation_id, $file);

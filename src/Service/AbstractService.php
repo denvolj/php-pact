@@ -2,49 +2,44 @@
 
 namespace Pact\Service;
 
-use Pact\HttpClient\Request;
-use Pact\HttpClient\Response;
 use Pact\PactClientInterface;
+use Pact\Service\ApiObjectInterface;
+use Pact\Service\ServiceInterface;
+use Pact\Utils\UrlFormatter;
 
-class AbstractService
-{
-    /** @var PactClientInterface */
-    private $client = null;
+abstract class AbstractService implements ServiceInterface
+{   
+    /**
+     * @var ApiObjectInterface
+     */
+    protected static $apiObjectClass = null;
 
     /**
+     * @var string Formatted string contains pattern for route formatting
+     * @example "/companies/%s/conversation/%s/
+     */
+    protected static string $routeTemplate = "";
+
+    /**
+     * @var PactClientInterface
+     */
+    protected $client;
+
+    /**
+     * Constructor
+     * 
      * @param PactClientInterface
      */
-    public function __construct($client)
+    public function __construct(PactClientInterface $client)
     {
         $this->client = $client;
     }
-    
+
     /**
-     * @param string HTTP method
-     * @param string relative path to service
-     * @param array query parameters
-     * @param mixed request content
-     * @return Response
+     * @var mixed substrings to insert in route template
      */
-    protected function request(string $method, string $urn, array $query = [], $content = null)
+    public function getRoute(...$params) 
     {
-        $request = new Request();
-        $request->setMethod($method);
-        $request->setQueries($query);
-        $request->setContent($content);
-        return $this->client->request($urn, $request);
-    }
-
-    protected static function buildPath($path, ...$ids)
-    {
-        foreach ($ids as $id) {
-            if (null === $id || '' === trim($id)) {
-                $msg = 'The resource ID cannot be null or whitespace.';
-
-                throw new \InvalidArgumentException($msg);
-            }
-        }
-
-        return sprintf($path, ...array_map('urlencode', $ids));
+        return UrlFormatter::format(static::$routeTemplate, ...$params);
     }
 }

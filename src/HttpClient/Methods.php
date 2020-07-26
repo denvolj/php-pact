@@ -2,7 +2,7 @@
 
 namespace Pact\HttpClient;
 
-class HttpMethods
+class Methods
 {
     const GET = 'GET';
     const PUT = 'PUT';

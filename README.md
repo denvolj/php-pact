@@ -4,7 +4,7 @@ A PHP library for Pact.im API
 ## Installation
 composer require denvolj/pact-im-php
 
-##Include in project##
+## Include in project
 ```php
 <?php
 require_once('vendor/autoload.php');
