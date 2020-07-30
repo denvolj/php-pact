@@ -4,7 +4,7 @@ namespace Pact\Service;
 
 use Pact\Service\MessageApiObject;
 use Pact\Exception\InvalidArgumentException;
-use Pact\HttpClient\HttpMethods;
+use Pact\Http\Methods;
 use PHPUnit\Util\Json;
 
 class MessageService extends AbstractService

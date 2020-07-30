@@ -1,10 +1,10 @@
 <?php
 
-namespace Pact\HttpClient;
+namespace Pact\Http;
 
 use Buzz\Client\Curl as BaseClient;
 use Nyholm\Psr7\Factory\Psr17Factory;
-use Pact\HttpClient\ClientInterface;
+use Pact\Http\ClientInterface;
 
 class Client extends BaseClient implements ClientInterface
 {

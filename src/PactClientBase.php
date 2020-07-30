@@ -2,8 +2,9 @@
 
 namespace Pact;
 
-use Pact\HttpClient\HttpClient;
-use Pact\HttpClient\Request;
+use Pact\Http\Client as HttpClient;
+use Pact\Http\ClientInterface;
+use Pact\Http\Request;
 use Pact\Service\MessageService;
 use Pact\Service\ServiceInterface;
 

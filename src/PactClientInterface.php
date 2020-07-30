@@ -2,7 +2,7 @@
 
 namespace Pact;
 
-use Pact\HttpClient\Request;
+use Pact\Http\Response;
 
 interface PactClientInterface
 {
