@@ -36,10 +36,30 @@ abstract class AbstractService implements ServiceInterface
     }
 
     /**
-     * @var mixed substrings to insert in route template
+     * Returns formatted route with pasted parameters
+     * 
+     * @param mixed substrings to insert in route template
+     * @return string 
      */
     public function getRoute(...$params) 
     {
         return UrlFormatter::format(static::$routeTemplate, ...$params);
+    }
+
+    /**
+     * Preparing request to the service and execute
+     * 
+     * @param string HTTP method name 
+     * @param string URI to endpoint of service
+     * @param array HTTP headers
+     * @param mixed body of request
+     */
+    public function request(string $method, $uri, array $headers = [], $body = null)
+    {
+        $response = $this->client->request($method, $uri, $headers, $body);
+
+        if ($response->isOK()) {
+            return json_decode($response->getBody())->data;
+        }
     }
 }

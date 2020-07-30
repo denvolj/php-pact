@@ -47,25 +47,22 @@ class PactClientBase
         return $this->services[$serviceName];
     }
 
-        return null;
-    }
-
     /**
-     * Make request to pact API
-     * @param string relative path to API endpoint
-     * @param Request request data
+     * Preparing request to the service and execute
+     * 
+     * @param string HTTP method name 
+     * @param string URI to endpoint of service
+     * @param array HTTP headers
+     * @param mixed body of request
      */
-    public function request(string $urn, Request $request)
+    public function request(string $method, $uri, array $headers = [], $body = null)
     {
-        $request->setHeader('X-Private-Api-Token', $this->api_token);
-        $url = static::DEFAULT_API_BASE . $urn;
-        $response = $this->http_client->request($url, $request);
+        $url = self::DEFAULT_API_BASE . $uri;
+        $headers['X-Private-Api-Token'] = $this->api_token;
+
+        $request = new Request($method, $url, $headers, $body);
+        $response = $this->http_client->sendRequest($request);
 
         return $response;
-    }
-
-    private function initServices()
-    {
-        $this->services['messages'] = new MessageService($this);
     }
 }

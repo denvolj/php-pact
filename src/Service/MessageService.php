@@ -5,13 +5,23 @@ namespace Pact\Service;
 use Pact\Service\MessageApiObject;
 use Pact\Exception\InvalidArgumentException;
 use Pact\Http\Methods;
+use Pact\Utils\UrlFormatter;
 use PHPUnit\Util\Json;
 
+/**
+ * Класс отвечает за подготовление запроса 
+ */
 class MessageService extends AbstractService
 {
     protected static $endpoint = 'companies/%s/conversations/%s/messages';
 
-
+    private function isSortCorrect($sort)
+    {
+        return $sort === null 
+            || 0 === strcmp('asc', $sort) 
+            || 0 === strcmp('desc', $sort);
+    }
+    
     /**
      * Creates new message related to company and conversation
      * 
@@ -49,20 +59,21 @@ class MessageService extends AbstractService
     public function getMessages($companyId, $conversationId, string $from=null, int $per=null, string $sort=null)
     {
         $query = ['from' => $from, 'per' => $per, 'sort' => $sort];
-
         if ($per !== null && ($per < 1 || $per > 100)) {
-            throw new InvalidArgumentException('Number of fetching elements must be between 1 and 100.');
+            $msg = 'Number of fetching elements must be between 1 and 100.';
+            throw new InvalidArgumentException($msg);
         }
 
-        if ($sort !== null && (0 !== strcmp('asc', $sort) || 0 !== strcmp('desc', $sort))) {
+        if ($this->isSortCorrect($sort)) {
             throw new InvalidArgumentException('Sort parameter must be asc or desc');
         }
 
-        $response = $this->request(HttpMethods::GET, static::buildPath(static::$endpoint, $companyId, $conversationId), $query);
-        if ($response->isOK()) {
-            return json_decode($response->getContent())->data;
-        }
-        return null;
+        $uri = $this->getRoute(
+                [$companyId, $conversationId], 
+                $query
+            );
+
+        return $this->request(Methods::GET, $uri);
     }
 
     /**
@@ -74,14 +85,16 @@ class MessageService extends AbstractService
      */
     public function sendMessage($companyId, $conversationId, $message, $attachments = null)
     {
-        $response = $this->request(HttpMethods::POST, static::buildPath(static::$endpoint, $companyId, $conversationId), [], http_build_query([
+        $query = [
             'message' =>  $message,
             'attachments_ids' => $attachments
-        ]));
+        ];
 
-        if ($response->isOK()) {
-            return json_decode($response->getContent())->data;
-        }
-        return null;
+        $uri = $this->getRoute(
+            [$companyId, $conversationId], 
+            $query
+        );
+
+        return $this->request(Methods::POST, $uri);
     }
 }
