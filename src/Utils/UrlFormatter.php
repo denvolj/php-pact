@@ -4,7 +4,15 @@ namespace Pact\Utils;
 
 class UrlFormatter
 {
-    public static function format($path, ...$ids)
+    /**
+     * Formats string using template by pasting ids
+     * 
+     * @param string Template
+     * @param array List of ids to paste
+     * @param array Additional parameters in uri
+     * @return string
+     */
+    public static function format(string $template, array $ids = [], array $query = [])
     {
         foreach ($ids as $id) {
             if (null === $id || '' === trim($id)) {
@@ -13,7 +21,11 @@ class UrlFormatter
                 throw new \InvalidArgumentException($msg);
             }
         }
+        $query = http_build_query($query);
+        if (strlen($query)) {
+            $query = "?${query}";
+        }
 
-        return sprintf($path, ...array_map('urlencode', $ids));
+        return sprintf($template, ...array_map('urlencode', $ids)) . $query;
     }
 }
