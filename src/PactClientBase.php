@@ -6,6 +6,7 @@ use Pact\Http\Client as HttpClient;
 use Pact\Http\ClientInterface;
 use Pact\Http\Request;
 use Pact\Service\MessageService;
+use Pact\Service\ServiceFactory;
 use Pact\Service\ServiceInterface;
 
 class PactClientBase 
@@ -16,9 +17,11 @@ class PactClientBase
     /** @var array configuration for current client */
     private $config = [];
 
+    /** @var ClientInterface */
     private $http_client;
 
-    private $services = [];
+    /** @var ServiceFactory */
+    private $services = null;
 
     /**
      * @var string Secret token for authentication
@@ -35,15 +38,14 @@ class PactClientBase
         }
 
         $this->api_token = $api_token;
-        $this->http_client = new HttpClient();
-        $this->initServices();
+        $this->http_client = HttpClient::getClient();
+        $this->services = new ServiceFactory();
     }
 
-    public function __get($service)
+    public function __get($serviceName)
     {
-        if (array_key_exists($service, $this->services)) {
-            return $this->services[$service];
-        }
+        return $this->services[$serviceName];
+    }
 
         return null;
     }
