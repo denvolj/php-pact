@@ -14,4 +14,11 @@ class PactClientBaseTest extends TestCase
 
         new PactClientBase('');
     }
+
+    public function testGetExistingServiceShouldBeOk()
+    {
+        $client = new PactClientBase('super secret, do not look 0w0');
+
+        $client->message;
+    }
 }
