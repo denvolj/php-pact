@@ -2,8 +2,6 @@
 
 namespace Pact\Tests\Service;
 
-use Pact\HttpClient\HttpStatusCodes;
-use Pact\HttpClient\Response;
 use Pact\PactClientBase;
 use PHPUnit\Framework\TestCase;
 

@@ -5,7 +5,6 @@ namespace Pact\Service;
 use Pact\Service\MessageApiObject;
 use Pact\Exception\InvalidArgumentException;
 use Pact\Http\Methods;
-use Pact\Utils\UrlFormatter;
 use PHPUnit\Util\Json;
 
 /**

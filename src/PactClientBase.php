@@ -5,9 +5,7 @@ namespace Pact;
 use Pact\Http\Client as HttpClient;
 use Pact\Http\ClientInterface;
 use Pact\Http\Request;
-use Pact\Service\MessageService;
 use Pact\Service\ServiceFactory;
-use Pact\Service\ServiceInterface;
 
 class PactClientBase 
 {
