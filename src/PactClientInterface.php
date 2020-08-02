@@ -2,7 +2,7 @@
 
 namespace Pact;
 
-use Pact\Http\Response;
+use Psr\Http\Message\ResponseInterface;
 
 interface PactClientInterface
 {
@@ -13,7 +13,7 @@ interface PactClientInterface
      * @param string URI to endpoint of service
      * @param array HTTP headers
      * @param mixed body of request
-     * @return Response
+     * @return ResponseInterface
      */
-    public function request(string $method, $uri, array $headers = [], $body = null);
+    public function request(string $method, $uri, array $headers = [], $body = null): ResponseInterface;
 }

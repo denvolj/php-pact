@@ -3,26 +3,42 @@
 namespace Pact\Service;
 
 use Pact\Exception\ServiceNotExistException;
+use Pact\PactClientInterface;
 use Pact\Service\MessageService;
 
+/**
+ * @property MessageService $messages
+ */
 class ServiceFactory
 {
-    private static $instance = null;
+    /** @var PactClientInterface */
+    protected $client = null;
 
-    private $services = [];
+    /** @var array */
+    protected $services = [];
 
-    private $mapping = [
-        'message' => MessageService::class
+    /** @var array */
+    protected $mapping = [
+        'messages' => MessageService::class
     ];
 
-    public static function getInstance()
+    /**
+     * Constructor
+     * 
+     * @param PactClientInterface 
+     */
+    public function __construct(PactClientInterface $client)
     {
-        if (static::$instance === null) {
-            static::$instance = new static();
-        }
-        return static::$instance;
+        $this->client = $client;
     }
 
+    /**
+     * Creating new instance of service if not done yet
+     * and returns it back
+     * 
+     * @param string Name of service
+     * @return ServiceInterface
+     */
     public function __get($serviceName)
     {
         if (array_key_exists($serviceName, $this->services)) {
@@ -30,19 +46,12 @@ class ServiceFactory
         }
 
         if (array_key_exists($serviceName, $this->mapping)) {
-            $service = new $this->mapping[$serviceName]();
+            $service = new $this->mapping[$serviceName]($this->client);
             $this->services[$serviceName] = $service;
 
             return $service;
         }
 
         throw new ServiceNotExistException("Service ${serviceName} doesn't exist");
-    }
-
-    public function __call($serviceName, $arg)
-    {
-        $service = $this->__get($serviceName);
-
-        return $service->createApiObject(...$arg);
     }
 }

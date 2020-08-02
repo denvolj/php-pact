@@ -2,12 +2,12 @@
 
 namespace Pact;
 
-use Pact\Http\Client as HttpClient;
 use Pact\Http\ClientInterface;
-use Pact\Http\Request;
+use Pact\Http\Factory;
 use Pact\Service\ServiceFactory;
+use Psr\Http\Message\ResponseInterface;
 
-class PactClientBase 
+class PactClientBase implements PactClientInterface
 {
     /** @var string default base URL for API */
     const DEFAULT_API_BASE = "https://api.pact.im/p1/";
@@ -36,8 +36,7 @@ class PactClientBase
         }
 
         $this->api_token = $api_token;
-        $this->http_client = HttpClient::getClient();
-        $this->services = new ServiceFactory();
+        $this->http_client = Factory::client();
     }
 
     public function __get($serviceName)
@@ -52,13 +51,14 @@ class PactClientBase
      * @param string URI to endpoint of service
      * @param array HTTP headers
      * @param mixed body of request
+     * @return ResponseInterface
      */
-    public function request(string $method, $uri, array $headers = [], $body = null)
+    public function request(string $method, $uri, array $headers = [], $body = null): ResponseInterface
     {
         $url = self::DEFAULT_API_BASE . $uri;
         $headers['X-Private-Api-Token'] = $this->api_token;
 
-        $request = new Request($method, $url, $headers, $body);
+        $request = Factory::request($method, $url, $headers, $body);
         $response = $this->http_client->sendRequest($request);
 
         return $response;

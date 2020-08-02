@@ -47,7 +47,7 @@ abstract class AbstractService implements ServiceInterface
     }
 
     /**
-     * Preparing request to the service and execute
+     * Preparing request
      * 
      * @param string HTTP method name 
      * @param string URI to endpoint of service
@@ -58,8 +58,11 @@ abstract class AbstractService implements ServiceInterface
     {
         $response = $this->client->request($method, $uri, $headers, $body);
 
-        if ($response->isOK()) {
-            return json_decode($response->getBody())->data;
+        $statusCode = $response->getStatusCode();
+
+        if (200 >= $statusCode && $statusCode < 300) {
+            return json_decode($response->getBody());
         }
+        throw new ApiCallException('Api returned non-OK status: ' . $statusCode);
     }
 }

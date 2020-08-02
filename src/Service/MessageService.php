@@ -2,7 +2,6 @@
 
 namespace Pact\Service;
 
-use Pact\Service\MessageApiObject;
 use Pact\Exception\InvalidArgumentException;
 use Pact\Http\Methods;
 use PHPUnit\Util\Json;
@@ -20,28 +19,6 @@ class MessageService extends AbstractService
             || 0 === strcmp('asc', $sort) 
             || 0 === strcmp('desc', $sort);
     }
-    
-    /**
-     * Creates new message related to company and conversation
-     * 
-     * @example $svc->createMessage($comp_id, $chan_id)
-     *              ->setBody('Hello World!')
-     *              ->attachFile($fileresource)
-     *              ->attachFile($url_to_file)
-     *              ->send();
-     * @param int Id of company in Pact
-     * @param int Id of conversation (channel) in Pact
-     * @return MessageApiObject
-     */
-    public function createMessage($companyId, $conversationId): MessageApiObject
-    {
-        $message = new MessageApiObject();
-        $message->setCompanyId($companyId)
-            ->setChannelId($conversationId);
-
-        return $message;
-    }
-
 
     /**
      * Get conversation messages
