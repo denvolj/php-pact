@@ -19,6 +19,7 @@ class MessageService extends AbstractService
     /**
      * @param array Route parameters validation method
      * @throws InvalidArgumentException
+     * @todo move some part of this method outside of class
      */
     protected function validateRouteParams($params)
     {
@@ -35,6 +36,23 @@ class MessageService extends AbstractService
         }
         if ($conversationId < 0) {
             throw new InvalidArgumentException('Id of conversation must be greater or equal than 0');
+        }
+    }
+
+    /**
+     * Attachments must be integers - ids of uploaded in attachents (in Pact)
+     * @param array|null Attachment list
+     * @throws InvalidArgumentException
+     */
+    private function validateAttachments($attacments)
+    {
+        if ($attacments === null) {
+            return;
+        } 
+        foreach ($attacments as $attacment) {
+            if (!is_int($attacment)) {
+                throw new InvalidArgumentException('Attachment must be integer');
+            }
         }
     }
 
@@ -73,13 +91,15 @@ class MessageService extends AbstractService
      * @param string Message text
      * @param array<int>|null attachments
      */
-    public function sendMessage($companyId, $conversationId, $message, $attachments = null)
+    public function sendMessage($companyId, $conversationId, string $message = null, array $attachments = null)
     {
-        $query = [
+        $this->validateAttachments($attachments);
+        
+        $body = [
             'message' =>  $message,
             'attachments_ids' => $attachments
         ];
 
-        return $this->request(Methods::POST, [$companyId, $conversationId], $query);
+        return $this->request(Methods::POST, [$companyId, $conversationId], [], [], $body);
     }
 }

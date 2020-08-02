@@ -111,13 +111,30 @@ class MessageServiceTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
-    public function testValidSortSendMessage()
+    public function testSendMessage()
     {
+        foreach([null, []] as $attachments) {
+            $this->prepareMock();
+            $response = $this->messageService->sendMessage(
+                $this->companyId,
+                $this->conversationId,
+                'Message body',
+                $attachments
+            );
+            $this->assertSame('ok', $response->status);
+        }
+    }
+
+    public function testSendMessageInvalidAttachmentsThrowsInvalidArgument()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Attachment must be integer');
         $this->prepareMock();
         $response = $this->messageService->sendMessage(
             $this->companyId,
             $this->conversationId,
-            'Message body'
+            'Message body',
+            [1.5]
         );
         $this->assertSame('ok', $response->status);
     }
