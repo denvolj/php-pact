@@ -43,7 +43,7 @@ abstract class AbstractService implements ServiceInterface
      * @param array optional url parameters
      * @return string 
      */
-    public function getRoute($params, $query) 
+    public function getRoute(array $params, array $query): string
     {
         $this->validateRouteParams($params);
         $query = http_build_query($query);
@@ -53,10 +53,12 @@ abstract class AbstractService implements ServiceInterface
         return UrlFormatter::format(static::$routeTemplate, $params) . $query;
     }
 
-    public function validateRouteParams($params)
-    {
-        return true;    // by default all parameters are valid
-    }
+    /**
+     * @param array Route parameters validation method
+     * @throws InvalidArgumentException
+     */
+    protected function validateRouteParams($params)
+    {}
 
     /**
      * Preparing request
@@ -70,9 +72,7 @@ abstract class AbstractService implements ServiceInterface
     public function request(string $method, array $routeParams=[], array $query=[], array $headers=[], $body=null)
     {
         $uri = $this->getRoute($routeParams, $query);
-
         $response = $this->client->request($method, $uri, $headers, $body);
-
         $statusCode = $response->getStatusCode();
 
         if (200 >= $statusCode && $statusCode < 300) {

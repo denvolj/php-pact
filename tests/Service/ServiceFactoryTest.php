@@ -29,12 +29,27 @@ class ServiceFactoryTest extends TestCase
     }
 
     /**
-     * Test get implemented service will return implemented ServiceInterface
+     * Test factory implements lazyload
      */
     public function testGetImplementedServiceReturnService()
     {
         $service = $this->factory->messages;
         $this->assertNotEmpty($service);
         $this->assertInstanceOf(ServiceInterface::class, $service);
+    }
+
+    /**
+     * Test get implemented service will return implemented ServiceInterface
+     */
+    public function testGetServiceReturnsLazyLoadedObject()
+    {
+        $service = $this->factory->messages;
+        $this->assertNotEmpty($service);
+        $this->assertInstanceOf(ServiceInterface::class, $service);
+        
+        $service2 = $this->factory->messages;
+        $this->assertNotEmpty($service);
+        $this->assertInstanceOf(ServiceInterface::class, $service);
+        $this->assertSame($service, $service2);
     }
 }

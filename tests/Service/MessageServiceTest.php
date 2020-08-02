@@ -111,6 +111,17 @@ class MessageServiceTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
+    public function testValidSortSendMessage()
+    {
+        $this->prepareMock();
+        $response = $this->messageService->sendMessage(
+            $this->companyId,
+            $this->conversationId,
+            'Message body'
+        );
+        $this->assertSame('ok', $response->status);
+    }
+
     public function testNotValidCompanyIdThrowsInvalidArgument()
     {
         $this->expectException(InvalidArgumentException::class);

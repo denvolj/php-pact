@@ -11,7 +11,7 @@ interface ServiceInterface
      * @param array optional url parameters
      * @return string 
      */
-    public function getRoute($params, $query);
+    public function getRoute(array $params, array $query): string;
 
     /**
      * Preparing request to the service and execute

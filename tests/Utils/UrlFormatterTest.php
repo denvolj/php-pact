@@ -18,6 +18,7 @@ class UrlFormatterTest extends TestCase
     public function testValidParametersWithOK()
     {
         $this->assertSame('/5/test/df/', UrlFormatter::format('/%s/test/%s/', [5, 'df']));
+        $this->assertSame('/5/test/df/?test=1', UrlFormatter::format('/%s/test/%s/', [5, 'df'], ["test"=>1]));
         $this->assertSame('/%24%25tst/path/', UrlFormatter::format('/%s/path/', ['$%tst']));
     }
 }

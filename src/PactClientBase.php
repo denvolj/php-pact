@@ -2,6 +2,7 @@
 
 namespace Pact;
 
+use Pact\Exception\InvalidArgumentException;
 use Pact\Http\ClientInterface;
 use Pact\Http\Factory;
 use Pact\Service\ServiceFactory;
@@ -32,7 +33,7 @@ class PactClientBase implements PactClientInterface
     public function __construct(string $api_token)
     {
         if ($api_token === '') {
-            throw new \InvalidArgumentException('API token can\'t be empty string');
+            throw new InvalidArgumentException('API token can\'t be empty string');
         }
 
         $this->api_token = $api_token;
