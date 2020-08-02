@@ -6,6 +6,7 @@ use Pact\Exception\InvalidArgumentException;
 use Pact\Http\Factory;
 use Pact\Http\Methods;
 use Pact\PactClientBase;
+use Pact\PactClientInterface;
 use Pact\Service\MessageService;
 use PHPUnit\Framework\TestCase;
 
@@ -15,10 +16,10 @@ class MessageServiceTest extends TestCase
     private $messageService = null;
     private $companyId = null;
     private $conversationId = null;
-    private $uri = '';
 
     protected function setUp(): void
     {
+        /** @var PactClientInterface */
         $this->client = $this->getMockBuilder(PactClientBase::class)
             ->setConstructorArgs(['top-secret token do not look 0w0'])
             ->getMock();
@@ -30,7 +31,7 @@ class MessageServiceTest extends TestCase
     {
         $this->conversationId = random_int(1, 500);
         $this->companyId = random_int(1, 500);
-        $this->uri = MessageService::getRoute([$this->companyId, $this->conversationId], $query);
+        $this->uri = $this->messageService->getRoute([$this->companyId, $this->conversationId], $query);
 
         // Configure the stub.
         $this->client->expects($this->any())
@@ -106,7 +107,47 @@ class MessageServiceTest extends TestCase
                 null,
                 $fetchCount
             );
-            $this->assertSame('ok', $response->status);
         }
+        $this->addToAssertionCount(1);
+    }
+
+    public function testNotValidCompanyIdThrowsInvalidArgument()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Id of company must be greater or equal than 0');
+        $response = $this->messageService->request(
+            Methods::GET,
+            [-1, 50]
+        );
+    }
+
+    public function testNotValidTypeCompanyIdThrowsInvalidArgument()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Id of company must be integer');
+        $response = $this->messageService->request(
+            Methods::GET,
+            [[], 50]
+        );
+    }
+
+    public function testNotValidConversationIdThrowsInvalidArgument()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Id of conversation must be greater or equal than 0');
+        $response = $this->messageService->request(
+            Methods::GET,
+            [50, -1]
+        );
+    }
+
+    public function testNotValidTypeConversationIdThrowsInvalidArgument()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Id of conversation must be integer');
+        $response = $this->messageService->request(
+            Methods::GET,
+            [50, []]
+        );
     }
 }

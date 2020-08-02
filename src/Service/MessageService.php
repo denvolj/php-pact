@@ -6,9 +6,6 @@ use Pact\Exception\InvalidArgumentException;
 use Pact\Http\Methods;
 use PHPUnit\Util\Json;
 
-/**
- * Класс отвечает за подготовление запроса 
- */
 class MessageService extends AbstractService
 {
     protected static $endpoint = 'companies/%s/conversations/%s/messages';
@@ -17,6 +14,28 @@ class MessageService extends AbstractService
     {
         return 0 === strcmp('asc', $sort) 
             || 0 === strcmp('desc', $sort);
+    }
+
+    /**
+     * @param array Route parameters validation method
+     * @throws InvalidArgumentException
+     */
+    protected function validateRouteParams($params)
+    {
+        [$companyId, $conversationId] = $params;
+        if (!is_int($companyId)) {
+            throw new InvalidArgumentException('Id of company must be integer');
+        }
+        if (!is_int($conversationId)) {
+            throw new InvalidArgumentException('Id of conversation must be integer');
+        }
+
+        if ($companyId < 0) {
+            throw new InvalidArgumentException('Id of company must be greater or equal than 0');
+        }
+        if ($conversationId < 0) {
+            throw new InvalidArgumentException('Id of conversation must be greater or equal than 0');
+        }
     }
 
     /**
@@ -43,12 +62,8 @@ class MessageService extends AbstractService
         }
 
         $query = ['from' => $from, 'per' => $per, 'sort' => $sort];
-        $uri = static::getRoute(
-                [$companyId, $conversationId], 
-                $query
-            );
 
-        return $this->request(Methods::GET, $uri);
+        return $this->request(Methods::GET, [$companyId, $conversationId], $query);
     }
 
     /**
@@ -65,11 +80,6 @@ class MessageService extends AbstractService
             'attachments_ids' => $attachments
         ];
 
-        $uri = static::getRoute(
-            [$companyId, $conversationId], 
-            $query
-        );
-
-        return $this->request(Methods::POST, $uri);
+        return $this->request(Methods::POST, [$companyId, $conversationId], $query);
     }
 }

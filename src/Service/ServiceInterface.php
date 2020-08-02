@@ -7,10 +7,11 @@ interface ServiceInterface
     /**
      * Returns formatted route with pasted parameters
      * 
-     * @param mixed substrings to insert in route template
+     * @param array values to insert in route template
+     * @param array optional url parameters
      * @return string 
      */
-    public static function getRoute(...$params);
+    public function getRoute($params, $query);
 
     /**
      * Preparing request to the service and execute
@@ -21,5 +22,5 @@ interface ServiceInterface
      * @param mixed body of request
      * @return mixed result
      */
-    public function request(string $method, $uri, array $headers = [], $body = null);
+    public function request(string $method, array $routeParams=[], array $query=[], array $headers=[], $body=null);
 }

@@ -39,24 +39,38 @@ abstract class AbstractService implements ServiceInterface
     /**
      * Returns formatted route with pasted parameters
      * 
-     * @param mixed substrings to insert in route template
+     * @param array values to insert in route template
+     * @param array optional url parameters
      * @return string 
      */
-    public static function getRoute(...$params) 
+    public function getRoute($params, $query) 
     {
-        return UrlFormatter::format(static::$routeTemplate, ...$params);
+        $this->validateRouteParams($params);
+        $query = http_build_query($query);
+        if (strlen($query)) {
+            $query = '?' . $query;
+        }
+        return UrlFormatter::format(static::$routeTemplate, $params) . $query;
+    }
+
+    public function validateRouteParams($params)
+    {
+        return true;    // by default all parameters are valid
     }
 
     /**
      * Preparing request
      * 
      * @param string HTTP method name 
-     * @param string URI to endpoint of service
-     * @param array HTTP headers
-     * @param mixed body of request
+     * @param array Route parameters that will be inserted in template
+     * @param array Additional uri query
+     * @param array HTTP Headers
+     * @param string|resource|StreamInterface|null Request body
      */
-    public function request(string $method, $uri, array $headers = [], $body = null)
+    public function request(string $method, array $routeParams=[], array $query=[], array $headers=[], $body=null)
     {
+        $uri = $this->getRoute($routeParams, $query);
+
         $response = $this->client->request($method, $uri, $headers, $body);
 
         $statusCode = $response->getStatusCode();
@@ -64,6 +78,6 @@ abstract class AbstractService implements ServiceInterface
         if (200 >= $statusCode && $statusCode < 300) {
             return json_decode($response->getBody());
         }
-        throw new ApiCallException('Api returned non-OK status: ' . $statusCode);
+        throw new ApiCallException('Api returned HTTP non-OK status: ' . $statusCode);
     }
 }
