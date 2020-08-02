@@ -8,6 +8,7 @@ use Pact\Service\MessageService;
 
 /**
  * @property MessageService $messages
+ * @property AttachmentService $attachments
  */
 class ServiceFactory
 {
@@ -19,7 +20,8 @@ class ServiceFactory
 
     /** @var array */
     protected $mapping = [
-        'messages' => MessageService::class
+        'messages' => MessageService::class,
+        'attachments' => AttachmentService::class
     ];
 
     /**
