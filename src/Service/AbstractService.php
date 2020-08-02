@@ -2,6 +2,7 @@
 
 namespace Pact\Service;
 
+use Pact\Exception\ApiCallException;
 use Pact\PactClientInterface;
 use Pact\Service\ApiObjectInterface;
 use Pact\Service\ServiceInterface;
@@ -41,7 +42,7 @@ abstract class AbstractService implements ServiceInterface
      * @param mixed substrings to insert in route template
      * @return string 
      */
-    public function getRoute(...$params) 
+    public static function getRoute(...$params) 
     {
         return UrlFormatter::format(static::$routeTemplate, ...$params);
     }

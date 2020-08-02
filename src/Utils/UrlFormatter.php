@@ -2,6 +2,8 @@
 
 namespace Pact\Utils;
 
+use Pact\Exception\InvalidArgumentException;
+
 class UrlFormatter
 {
     /**
@@ -18,7 +20,7 @@ class UrlFormatter
             if (null === $id || '' === trim($id)) {
                 $msg = 'The resource ID cannot be null or whitespace.';
 
-                throw new \InvalidArgumentException($msg);
+                throw new InvalidArgumentException($msg);
             }
         }
         $query = http_build_query($query);

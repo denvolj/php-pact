@@ -15,8 +15,7 @@ class MessageService extends AbstractService
 
     private function isSortCorrect($sort)
     {
-        return $sort === null 
-            || 0 === strcmp('asc', $sort) 
+        return 0 === strcmp('asc', $sort) 
             || 0 === strcmp('desc', $sort);
     }
 
@@ -34,17 +33,17 @@ class MessageService extends AbstractService
      */
     public function getMessages($companyId, $conversationId, string $from=null, int $per=null, string $sort=null)
     {
-        $query = ['from' => $from, 'per' => $per, 'sort' => $sort];
         if ($per !== null && ($per < 1 || $per > 100)) {
             $msg = 'Number of fetching elements must be between 1 and 100.';
             throw new InvalidArgumentException($msg);
         }
 
-        if ($this->isSortCorrect($sort)) {
+        if ($sort !== null && !$this->isSortCorrect($sort)) {
             throw new InvalidArgumentException('Sort parameter must be asc or desc');
         }
 
-        $uri = $this->getRoute(
+        $query = ['from' => $from, 'per' => $per, 'sort' => $sort];
+        $uri = static::getRoute(
                 [$companyId, $conversationId], 
                 $query
             );
@@ -66,7 +65,7 @@ class MessageService extends AbstractService
             'attachments_ids' => $attachments
         ];
 
-        $uri = $this->getRoute(
+        $uri = static::getRoute(
             [$companyId, $conversationId], 
             $query
         );

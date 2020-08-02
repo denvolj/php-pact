@@ -37,11 +37,12 @@ class PactClientBase implements PactClientInterface
 
         $this->api_token = $api_token;
         $this->http_client = Factory::client();
+        $this->services = new ServiceFactory($this);
     }
 
     public function __get($serviceName)
     {
-        return $this->services[$serviceName];
+        return $this->services->{$serviceName};
     }
 
     /**
