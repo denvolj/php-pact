@@ -4,6 +4,7 @@ namespace Pact\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Pact\PactClientBase;
+use Pact\Service\ServiceInterface;
 
 class PactClientBaseTest extends TestCase
 {
@@ -19,6 +20,8 @@ class PactClientBaseTest extends TestCase
     {
         $client = new PactClientBase('super secret, do not look 0w0');
 
-        $client->message;
+        $service = $client->messages;
+        $this->assertNotEmpty($service);
+        $this->assertInstanceOf(ServiceInterface::class, $service);
     }
 }

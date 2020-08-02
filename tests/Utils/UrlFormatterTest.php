@@ -10,10 +10,9 @@ class UrlFormatterTest extends TestCase
 {
     public function testFormatWithInvalidParametersThrowsInvalidArgumentException()
     {
-        $this->expectErrorMessage('The resource ID cannot be null or whitespace.');
+        $this->expectExceptionMessage('The resource ID cannot be null or whitespace.');
+        $this->expectException(InvalidArgumentException::class);
         UrlFormatter::format('/test/%s/path/%s/', ['', 'df']);
-        
-        $this->expectError(InvalidArgumentException::class);
     }
 
     public function testValidParametersWithOK()
