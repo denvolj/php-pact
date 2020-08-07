@@ -1,5 +1,5 @@
 {
-    "name": "denvolj/pact-im-php",
+    "name": "pact-im/sdk-php",
     "type": "library",
     "description": "PHP library for pact.im",
     "keywords": ["library", "pact"],
