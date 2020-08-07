@@ -2,7 +2,7 @@
 
 namespace Pact\Tests\Service;
 
-use Pact\Exception\ServiceNotExistException;
+use Pact\Exception\NotImplementedException;
 use Pact\PactClientBase;
 use Pact\Service\ServiceFactory;
 use Pact\Service\ServiceInterface;
@@ -24,7 +24,7 @@ class ServiceFactoryTest extends TestCase
      */
     public function testGetNotExistingServiceThrowsServiceNotFoundException()
     {
-        $this->expectException(ServiceNotExistException::class);
+        $this->expectException(NotImplementedException::class);
         $this->factory->TotallyNotExistingService;
     }
 

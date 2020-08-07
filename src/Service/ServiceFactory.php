@@ -2,7 +2,7 @@
 
 namespace Pact\Service;
 
-use Pact\Exception\ServiceNotExistException;
+use Pact\Exception\NotImplementedException;
 use Pact\PactClientInterface;
 use Pact\Service\MessageService;
 
@@ -54,6 +54,6 @@ class ServiceFactory
             return $service;
         }
 
-        throw new ServiceNotExistException("Service ${serviceName} doesn't exist");
+        throw new NotImplementedException("Service ${serviceName} doesn't exist");
     }
 }

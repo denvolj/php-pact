@@ -29,12 +29,12 @@ class AbstractServiceTest extends TestCase
 
     public function testGetRouteReturnsEmptyString()
     {
-        $this->assertSame('', $this->abstractService->getRoute([], []));
+        $this->assertSame('', $this->abstractService->formatEndpoint('', [], []));
     }
 
     public function testGetRouteWithQueryReturnsEmptyString()
     {
-        $this->assertSame('?test=1', $this->abstractService->getRoute([], ['test'=>'1']));
+        $this->assertSame('?test=1', $this->abstractService->formatEndpoint('', [], ['test'=>'1']));
     }
 
     public function testMakeRequest()
@@ -42,7 +42,7 @@ class AbstractServiceTest extends TestCase
         $this->client->expects($this->any())
             ->method('request')
             ->will($this->returnValue(Factory::response(200, [], '{"status":"ok"}')));
-        $this->abstractService->request(Methods::GET, [], ['test'=>1]);
+        $this->abstractService->request(Methods::GET, '', [], ['test'=>1]);
         $this->addToAssertionCount(1);
     }
 
@@ -53,7 +53,7 @@ class AbstractServiceTest extends TestCase
         $this->client->expects($this->any())
             ->method('request')
             ->will($this->returnValue(Factory::response(404, [], '{}')));
-        $this->abstractService->request(Methods::GET, [], []);
+        $this->abstractService->request(Methods::GET, '', [], []);
         $this->addToAssertionCount(1);
     }
 }

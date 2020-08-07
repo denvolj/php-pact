@@ -8,7 +8,7 @@ use PHPUnit\Util\Json;
 
 class MessageService extends AbstractService
 {
-    protected static $endpoint = 'companies/%s/conversations/%s/messages';
+    protected static string $endpoint = 'companies/%s/conversations/%s/messages';
 
     private function isSortCorrect($sort)
     {
@@ -24,19 +24,8 @@ class MessageService extends AbstractService
     protected function validateRouteParams($params)
     {
         [$companyId, $conversationId] = $params;
-        if (!is_int($companyId)) {
-            throw new InvalidArgumentException('Id of company must be integer');
-        }
-        if (!is_int($conversationId)) {
-            throw new InvalidArgumentException('Id of conversation must be integer');
-        }
-
-        if ($companyId < 0) {
-            throw new InvalidArgumentException('Id of company must be greater or equal than 0');
-        }
-        if ($conversationId < 0) {
-            throw new InvalidArgumentException('Id of conversation must be greater or equal than 0');
-        }
+        $this->validator->_($companyId<0, 'Id of company must be greater or equal than 0');
+        $this->validator->_($conversationId<0, 'Id of conversation must be greater or equal than 0');
     }
 
     /**
@@ -50,9 +39,7 @@ class MessageService extends AbstractService
             return;
         } 
         foreach ($attacments as $attacment) {
-            if (!is_int($attacment)) {
-                throw new InvalidArgumentException('Attachment must be integer');
-            }
+            $this->validator->_(!is_int($attacment), 'Attachment must be integer');
         }
     }
 
@@ -68,7 +55,7 @@ class MessageService extends AbstractService
      * @param string We sort results by created_at. Change sorting direction. Avilable values: asc, desc. Default: asc.
      * @return Json|null
      */
-    public function getMessages($companyId, $conversationId, string $from=null, int $per=null, string $sort=null)
+    public function getMessages(int $companyId, int $conversationId, string $from=null, int $per=null, string $sort=null)
     {
         if ($per !== null && ($per < 1 || $per > 100)) {
             $msg = 'Number of fetching elements must be between 1 and 100.';
@@ -81,7 +68,12 @@ class MessageService extends AbstractService
 
         $query = ['from' => $from, 'per' => $per, 'sort' => $sort];
 
-        return $this->request(Methods::GET, [$companyId, $conversationId], $query);
+        return $this->request(
+            Methods::GET, 
+            static::$endpoint, 
+            [$companyId, $conversationId], 
+            $query
+        );
     }
 
     /**
@@ -91,7 +83,7 @@ class MessageService extends AbstractService
      * @param string Message text
      * @param array<int>|null attachments
      */
-    public function sendMessage($companyId, $conversationId, string $message = null, array $attachments = null)
+    public function sendMessage(int $companyId, int $conversationId, string $message = null, array $attachments = null)
     {
         $this->validateAttachments($attachments);
         
@@ -99,7 +91,14 @@ class MessageService extends AbstractService
             'message' =>  $message,
             'attachments_ids' => $attachments
         ];
-
-        return $this->request(Methods::POST, [$companyId, $conversationId], [], [], $body);
+        
+        return $this->request(
+            Methods::POST,
+            static::$endpoint,
+            [$companyId, $conversationId],
+            [],
+            [],
+            $body
+        );
     }
 }

@@ -4,44 +4,57 @@ namespace Pact\Tests\Service;
 
 use Pact\Exception\InvalidArgumentException;
 use Pact\Http\Factory;
-use Pact\Http\Methods;
 use Pact\PactClientBase;
 use Pact\PactClientInterface;
 use Pact\Service\MessageService;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class MessageServiceTest extends TestCase
 {
+    /** @var PactClientInterface|MockObject */
     private $client = null;
+
+    /** @var MessageService */
     private $messageService = null;
     private $companyId = null;
     private $conversationId = null;
+    private $url;
 
     protected function setUp(): void
     {
-        /** @var PactClientInterface */
+        $this->companyId = random_int(1, 500);
+        $this->conversationId = random_int(1, 500);
+
+        /** @var PactClientInterface|MockObject */
         $this->client = $this->getMockBuilder(PactClientBase::class)
             ->setConstructorArgs(['top-secret token do not look 0w0'])
             ->getMock();
 
+        // Configure the stub.
+        $this->client->expects($this->any())
+        ->method('request')
+        ->with(
+            $this->anything(),
+            $this->callback(function ($arg) {
+                return $arg === $this->url;
+            })
+        )
+        ->will($this->returnValue(Factory::response(200, [], '{"status":"ok"}')));
+
         $this->messageService = new MessageService($this->client);
     }
 
-    protected function prepareMock(array $query = [])
+    protected function prepareUrl($append = '', array $routeParams = [], array $query = [])
     {
-        $this->conversationId = random_int(1, 500);
-        $this->companyId = random_int(1, 500);
-        $this->uri = $this->messageService->getRoute([$this->companyId, $this->conversationId], $query);
-
-        // Configure the stub.
-        $this->client->expects($this->any())
-            ->method('request')
-            ->will($this->returnValue(Factory::response(200, [], '{"status":"ok"}')));
+        $template = $this->messageService->getRouteTemplate();
+        $this->url = $this->messageService->formatEndpoint($template.$append, $routeParams, $query);
+        return $this->url;
     }
 
     public function testNormalGetMessages()
     {
-        $this->prepareMock();
+        $url = $this->prepareUrl('', [$this->companyId, $this->conversationId]);
             
         $response = $this->messageService->getMessages(
             $this->companyId,
@@ -53,7 +66,8 @@ class MessageServiceTest extends TestCase
     public function testValidSortGetMessage()
     {
         foreach (['asc', 'desc'] as $sort) {
-            $this->prepareMock(['sort' => $sort]);
+            $query = ['sort' => $sort];
+            $url = $this->prepareUrl('', [$this->companyId, $this->conversationId], $query);
             $response = $this->messageService->getMessages(
                 $this->companyId,
                 $this->conversationId,
@@ -69,7 +83,8 @@ class MessageServiceTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Sort parameter must be asc or desc');
-        $this->prepareMock(['sort' => 'asdf']);
+        $query = ['sort' => 'asdf'];
+        $url = $this->prepareUrl('', [$this->companyId, $this->conversationId], $query);
         $response = $this->messageService->getMessages(
             $this->companyId,
             $this->conversationId,
@@ -82,7 +97,8 @@ class MessageServiceTest extends TestCase
     public function testInvalidFetchCountThrowsInvalidArgument()
     {
         foreach ([0, 101] as $fetchCount) {
-            $this->prepareMock(['per' => $fetchCount]);
+            $query = ['per' => $fetchCount];
+            $url = $this->prepareUrl('', [$this->companyId, $this->conversationId], $query);
             try {
                 $response = $this->messageService->getMessages(
                     $this->companyId,
@@ -100,7 +116,8 @@ class MessageServiceTest extends TestCase
     public function testValidFetchCount()
     {
         for ($fetchCount=1; $fetchCount<101;$fetchCount++) {
-            $this->prepareMock(['per' => $fetchCount]);
+            $query = ['per' => $fetchCount];
+            $url = $this->prepareUrl('', [$this->companyId, $this->conversationId], $query);
             $response = $this->messageService->getMessages(
                 $this->companyId,
                 $this->conversationId,
@@ -113,8 +130,8 @@ class MessageServiceTest extends TestCase
 
     public function testSendMessage()
     {
+        $url = $this->prepareUrl('', [$this->companyId, $this->conversationId]);
         foreach([null, []] as $attachments) {
-            $this->prepareMock();
             $response = $this->messageService->sendMessage(
                 $this->companyId,
                 $this->conversationId,
@@ -129,7 +146,7 @@ class MessageServiceTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Attachment must be integer');
-        $this->prepareMock();
+        $url = $this->prepareUrl('', [$this->companyId, $this->conversationId]);
         $response = $this->messageService->sendMessage(
             $this->companyId,
             $this->conversationId,
@@ -137,45 +154,5 @@ class MessageServiceTest extends TestCase
             [1.5]
         );
         $this->assertSame('ok', $response->status);
-    }
-
-    public function testNotValidCompanyIdThrowsInvalidArgument()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Id of company must be greater or equal than 0');
-        $response = $this->messageService->request(
-            Methods::GET,
-            [-1, 50]
-        );
-    }
-
-    public function testNotValidTypeCompanyIdThrowsInvalidArgument()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Id of company must be integer');
-        $response = $this->messageService->request(
-            Methods::GET,
-            [[], 50]
-        );
-    }
-
-    public function testNotValidConversationIdThrowsInvalidArgument()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Id of conversation must be greater or equal than 0');
-        $response = $this->messageService->request(
-            Methods::GET,
-            [50, -1]
-        );
-    }
-
-    public function testNotValidTypeConversationIdThrowsInvalidArgument()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Id of conversation must be integer');
-        $response = $this->messageService->request(
-            Methods::GET,
-            [50, []]
-        );
     }
 }

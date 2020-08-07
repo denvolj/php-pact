@@ -9,7 +9,7 @@ use Psr\Http\Message\StreamInterface;
 
 class AttachmentService extends AbstractService
 {
-    protected $endpoint = 'companies/%s/conversations/%s/messages/attachments';
+    protected static string $endpoint = 'companies/%s/conversations/%s/messages/attachments';
 
     /**
      * @param array Route parameters validation method
@@ -19,19 +19,8 @@ class AttachmentService extends AbstractService
     protected function validateRouteParams($params)
     {
         [$companyId, $conversationId] = $params;
-        if (!is_int($companyId)) {
-            throw new InvalidArgumentException('Id of company must be integer');
-        }
-        if (!is_int($conversationId)) {
-            throw new InvalidArgumentException('Id of conversation must be integer');
-        }
-
-        if ($companyId < 0) {
-            throw new InvalidArgumentException('Id of company must be greater or equal than 0');
-        }
-        if ($conversationId < 0) {
-            throw new InvalidArgumentException('Id of conversation must be greater or equal than 0');
-        }
+        $this->validator->_($companyId<0, 'Id of company must be greater or equal than 0');
+        $this->validator->_($conversationId<0, 'Id of conversation must be greater or equal than 0');
     }
 
     /**
@@ -64,10 +53,17 @@ class AttachmentService extends AbstractService
      * @param Resource|StreamInterface|string file to upload
      * @return Json|null
      */
-    public function uploadFile($companyId, $conversationId, $attachment)
+    public function uploadFile(int $companyId, int $conversationId, $attachment)
     {
         $body = $this->prepareAttachment($attachment);
 
-        return $this->request(Methods::POST, [$companyId, $conversationId], [], [], $body);
+        return $this->request(
+            Methods::POST,
+            static::$endpoint,
+            [$companyId, $conversationId],
+            [],
+            [],
+            $body
+        );
     }
 }

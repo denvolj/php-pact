@@ -9,39 +9,53 @@ use Pact\PactClientBase;
 use Pact\PactClientInterface;
 use Pact\Service\AttachmentService;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class AttachmentServiceTest extends TestCase
 {
+    /** @var PactClientInterface|MockObject */
     private $client = null;
+
+    /** @var AttachmentService */
     private $attachmentService = null;
     private $companyId = null;
     private $conversationId = null;
+    private $url;
 
     protected function setUp(): void
     {
-        /** @var PactClientInterface */
+        $this->companyId = random_int(1, 500);
+        $this->conversationId = random_int(1, 500);
+
+        /** @var PactClientInterface|MockObject */
         $this->client = $this->getMockBuilder(PactClientBase::class)
             ->setConstructorArgs(['top-secret token do not look 0w0'])
             ->getMock();
 
+        // Configure the stub.
+        $this->client->expects($this->any())
+        ->method('request')
+        ->with(
+            $this->anything(),
+            $this->callback(function ($arg) {
+                return $arg === $this->url;
+            })
+        )
+        ->will($this->returnValue(Factory::response(200, [], '{"status":"ok"}')));
+
         $this->attachmentService = new AttachmentService($this->client);
     }
 
-    protected function prepareMock(array $query = [])
+    protected function prepareUrl($append = '', array $routeParams = [], array $query = [])
     {
-        $this->conversationId = random_int(1, 500);
-        $this->companyId = random_int(1, 500);
-        $this->uri = $this->attachmentService->getRoute([$this->companyId, $this->conversationId], $query);
-
-        // Configure the stub.
-        $this->client->expects($this->any())
-            ->method('request')
-            ->will($this->returnValue(Factory::response(200, [], '{"status":"ok"}')));
+        $template = $this->attachmentService->getRouteTemplate();
+        $this->url = $this->attachmentService->formatEndpoint($template.$append, $routeParams, $query);
+        return $this->url;
     }
 
     public function testNormalUploadAttachment()
     {
-        $this->prepareMock();
+        $this->prepareUrl('', [$this->companyId, $this->conversationId]);
         $data = [
             fopen(__DIR__.'/../data/fennec.png', 'r'),
             __DIR__.'/../data/fennec.png', 
@@ -61,7 +75,6 @@ class AttachmentServiceTest extends TestCase
     {
         $this->expectException(FileNotFoundException::class);
         $this->expectExceptionMessageMatches('/^File .+? not found/');
-        $this->prepareMock();
         
         $response = $this->attachmentService->uploadFile(
             $this->companyId,
@@ -75,7 +88,6 @@ class AttachmentServiceTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Attachment must be string or resource or StreamInterface');
-        $this->prepareMock();
         
         $response = $this->attachmentService->uploadFile(
             $this->companyId,
