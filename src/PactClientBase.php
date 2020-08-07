@@ -14,18 +14,15 @@ class PactClientBase implements PactClientInterface
     const DEFAULT_API_BASE = "https://api.pact.im/p1/";
 
     /** @var array configuration for current client */
-    private $config = [];
+    protected $config = [];
 
     /** @var ClientInterface */
-    private $http_client;
-
-    /** @var ServiceFactory */
-    private $services = null;
+    protected $http_client;
 
     /**
      * @var string Secret token for authentication
      */
-    private $api_token;
+    protected $api_token;
 
     /**
      * @param string Secret token used for authentication
@@ -38,14 +35,7 @@ class PactClientBase implements PactClientInterface
 
         $this->api_token = $api_token;
         $this->http_client = Factory::client();
-        $this->services = new ServiceFactory($this);
     }
-
-    public function __get($serviceName)
-    {
-        return $this->services->{$serviceName};
-    }
-
     /**
      * Preparing request to the service and execute
      * 

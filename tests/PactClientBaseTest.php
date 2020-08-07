@@ -16,13 +16,4 @@ class PactClientBaseTest extends TestCase
 
         new PactClientBase('');
     }
-
-    public function testGetExistingServiceShouldBeOk()
-    {
-        $client = new PactClientBase('super secret, do not look 0w0');
-
-        $service = $client->messages;
-        $this->assertNotEmpty($service);
-        $this->assertInstanceOf(ServiceInterface::class, $service);
-    }
 }
