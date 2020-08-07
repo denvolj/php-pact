@@ -17,6 +17,7 @@ class ConversationServiceTest extends TestCase
     
     private $companyId;
     private $conversationId;
+    protected $url;
 
     /** @var ConversationService */
     private $service;
@@ -37,7 +38,8 @@ class ConversationServiceTest extends TestCase
         ->with(
             $this->anything(),
             $this->callback(function ($arg) {
-                return $arg === $this->url;
+                $this->assertEquals($this->url, $arg);
+                return true;
             })
         )
         ->will($this->returnValue(Factory::response(200, [], '{"status":"ok"}')));
@@ -55,7 +57,7 @@ class ConversationServiceTest extends TestCase
     /**
      * @dataProvider validDataSetGetConversation
      */
-    public function testNormalGetConversations($from, $per, $sort)
+    public function testValidGetConversations($from, $per, $sort)
     {
         $query = ['from' => $from, 'per' => $per, 'sort' => $sort];
         $this->prepareUrl('', [$this->companyId], $query);
@@ -141,5 +143,40 @@ class ConversationServiceTest extends TestCase
             $this->conversationId
         );
         $this->assertSame('ok', $response->status);
+    }
+
+    public function testValidUpdateAssignee()
+    {
+        $this->prepareUrl('/%s/assign', [$this->companyId, $this->conversationId]);
+            
+        $response = $this->service->updateAssignee(
+            $this->companyId,
+            $this->conversationId,
+            random_int(1, 500)
+        );
+        $this->assertSame('ok', $response->status);
+    }
+
+    /**
+     * @dataProvider invalidDataSetUpdateAssignee
+     */
+    public function testInvalidUpdateAssignee($assigneeId)
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->prepareUrl('/%s/assign', [$this->companyId, $this->conversationId]);
+            
+        $response = $this->service->updateAssignee(
+            $this->companyId,
+            $this->conversationId,
+            $assigneeId
+        );
+        $this->assertSame('ok', $response->status);
+    }
+
+    public function invalidDataSetUpdateAssignee()
+    {
+        return [
+            [0]
+        ];
     }
 }

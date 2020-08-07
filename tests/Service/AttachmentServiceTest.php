@@ -38,7 +38,8 @@ class AttachmentServiceTest extends TestCase
         ->with(
             $this->anything(),
             $this->callback(function ($arg) {
-                return $arg === $this->url;
+                $this->assertEquals($this->url, $arg);
+                return true;
             })
         )
         ->will($this->returnValue(Factory::response(200, [], '{"status":"ok"}')));
