@@ -4,11 +4,11 @@ namespace Pact\Service;
 
 use Pact\Exception\NotImplementedException;
 use Pact\PactClientInterface;
-use Pact\Service\MessageService;
 
 /**
  * @property MessageService $messages
  * @property AttachmentService $attachments
+ * @property ConversationService $conversations
  */
 class ServiceFactory
 {
@@ -21,7 +21,8 @@ class ServiceFactory
     /** @var array */
     protected $mapping = [
         'messages' => MessageService::class,
-        'attachments' => AttachmentService::class
+        'attachments' => AttachmentService::class,
+        'conversations' => ConversationService::class
     ];
 
     /**
