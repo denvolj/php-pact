@@ -75,7 +75,6 @@ $attach_1 = $client->attachmehts->uploadAttachment($company, $conversation, 'fen
 $attach_1 = $client->attachmehts->uploadAttachment(
     $company,
     $conversation,
-    'fennect.png',
     'https://upload.wikimedia.org/wikipedia/commons/9/9f/Fennec_Fox_Vulpes_zerda.jpg'
     );
 $messages = $client->messages->sendMessage($company, $conversation, $msg, [

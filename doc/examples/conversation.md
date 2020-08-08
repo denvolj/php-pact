@@ -108,7 +108,7 @@ $assigneeId = ...;
 $details = $client->conversations->updateAssignee($company, $conversationId, $assigneeId);
 ```
 
-### Result
+Result:
 
 ```json
 {

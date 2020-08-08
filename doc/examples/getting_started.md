@@ -16,4 +16,4 @@ $pact = new \Pact\PactClient($token)
 
 - [Attachments](./messages.md)
 
-- [Conversation](./conversation.md)
+- [Conversation](./messages.md#send-files-with-attachments)
