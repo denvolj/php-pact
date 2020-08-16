@@ -4,80 +4,106 @@ namespace Pact\Tests\Service;
 
 use Pact\Exception\FileNotFoundException;
 use Pact\Exception\InvalidArgumentException;
-use Pact\Http\Factory;
-use Pact\PactClientBase;
-use Pact\PactClientInterface;
+use Pact\Http\Methods;
 use Pact\Service\AttachmentService;
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\MockObject\MockObject;
 
-class AttachmentServiceTest extends TestCase
+class AttachmentServiceTest extends ServiceTestCase
 {
-    /** @var PactClientInterface|MockObject */
-    private $client = null;
+    protected static $serviceClass = AttachmentService::class;
 
     /** @var AttachmentService */
-    private $attachmentService = null;
-    private $companyId = null;
-    private $conversationId = null;
-    private $url;
+    protected $service;
+
+    /** @var int $companyId */
+    private int $companyId;
+
+    /** @var int $conversationId */
+    private int $conversationId;
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->companyId = random_int(1, 500);
         $this->conversationId = random_int(1, 500);
-
-        /** @var PactClientInterface|MockObject */
-        $this->client = $this->getMockBuilder(PactClientBase::class)
-            ->setConstructorArgs(['top-secret token do not look 0w0'])
-            ->getMock();
-
-        // Configure the stub.
-        $this->client->expects($this->any())
-        ->method('request')
-        ->with(
-            $this->anything(),
-            $this->callback(function ($arg) {
-                $this->assertEquals($this->url, $arg);
-                return true;
-            })
-        )
-        ->will($this->returnValue(Factory::response(200, [], '{"status":"ok"}')));
-
-        $this->attachmentService = new AttachmentService($this->client);
     }
 
-    protected function prepareUrl($append = '', array $routeParams = [], array $query = [])
+    /**
+     * @dataProvider dataset_valid_upload_with_resource
+     */
+    public function test_valid_upload_with_resource($file)
     {
-        $template = $this->attachmentService->getRouteTemplate();
-        $this->url = $this->attachmentService->formatEndpoint($template.$append, $routeParams, $query);
-        return $this->url;
-    }
+        $this->expectedMethod = Methods::POST;
+        $this->expectedUrl = $this->formatEndpoint('', 
+            [$this->companyId, $this->conversationId]
+        );
 
-    public function testNormalUploadAttachment()
-    {
-        $this->prepareUrl('', [$this->companyId, $this->conversationId]);
-        $data = [
-            fopen(__DIR__.'/../data/fennec.png', 'r'),
-            __DIR__.'/../data/fennec.png', 
-            'http://fennecs.fc/nya.png'
-        ];
-        foreach ($data as $file) {
-            $response = $this->attachmentService->uploadFile(
-                $this->companyId,
-                $this->conversationId,
-                $file
+        $this->setUpMocks(
+                $this->callback(function($body) {
+                    $this->assertArrayHasKey('file', $body);
+                    $this->assertIsResource($body['file']);
+                    return true;
+                })
             );
-            $this->assertSame('ok', $response->status);
-        }
+        
+        $response = $this->service->uploadFile(
+            $this->companyId,
+            $this->conversationId,
+            $file
+        );
+        $this->assertSame('ok', $response->status);
+    }
+    
+    public function dataset_valid_upload_with_resource()
+    {
+        return [
+            'Resource' => [fopen(__DIR__.'/../data/fennec.png', 'r')],
+            'File path' => [__DIR__.'/../data/fennec.png']
+        ];
     }
 
-    public function testAttachNotExistingFileThrowsFileNotFound()
+    /**
+     * @dataProvider dataset_valid_upload_with_url
+     */
+    public function test_valid_upload_with_url($file)
+    {
+        $this->expectedMethod = Methods::POST;
+        $this->expectedUrl = $this->formatEndpoint('', 
+            [$this->companyId, $this->conversationId]
+        );
+
+        $this->setUpMocks(
+                $this->callback(function($body) {
+                    $this->assertArrayHasKey('file_url', $body);
+                    $this->assertIsString($body['file_url']);
+                    $this->assertTrue(
+                        (bool)filter_var($body['file_url'], FILTER_VALIDATE_URL),
+                        'file_url contains invalid url'
+                    );
+                    return true;
+                })
+            );
+        
+        $response = $this->service->uploadFile(
+            $this->companyId,
+            $this->conversationId,
+            $file
+        );
+        $this->assertSame('ok', $response->status);
+    }
+    
+    public function dataset_valid_upload_with_url()
+    {
+        return [
+            'Url' => ['https://fennecs.io/purr-fennec.png']
+        ];
+    }
+
+    public function test_attempt_attach_non_existing_file_throws_file_not_found()
     {
         $this->expectException(FileNotFoundException::class);
         $this->expectExceptionMessageMatches('/^File .+? not found/');
         
-        $response = $this->attachmentService->uploadFile(
+        $response = $this->service->uploadFile(
             $this->companyId,
             $this->conversationId,
             __DIR__.'/../not-existing.file'
@@ -85,12 +111,12 @@ class AttachmentServiceTest extends TestCase
         $this->assertSame('ok', $response->status);
     }
 
-    public function testInvalidAttachmentSourceThrowsInvalidArgument()
+    public function test_invalid_attachment_throws_invalid_argument()
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Attachment must be string or resource or StreamInterface');
         
-        $response = $this->attachmentService->uploadFile(
+        $response = $this->service->uploadFile(
             $this->companyId,
             $this->conversationId,
             []

@@ -3,65 +3,38 @@
 namespace Pact\Tests\Service;
 
 use Pact\Exception\InvalidArgumentException;
-use Pact\Http\Factory;
-use Pact\PactClientBase;
-use Pact\PactClientInterface;
+use Pact\Http\Methods;
 use Pact\Service\ConversationService;
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\MockObject\MockObject;
 
-class ConversationServiceTest extends TestCase
-{
-    /** @var PactClientInterface|MockObject */
-    private $client = null;
-    
-    private $companyId;
-    private $conversationId;
-    protected $url;
+class ConversationServiceTest extends ServiceTestCase
+{   
+    protected static $serviceClass = ConversationService::class;
 
     /** @var ConversationService */
-    private $service;
+    protected $service;
+
+    /** @var int $companyId */
+    private int $companyId;
+
+    /** @var int $conversationId */
+    private int $conversationId;
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->companyId = random_int(1, 500);
         $this->conversationId = random_int(1, 500);
-
-        /** @var PactClientInterface|MockObject */
-        $this->client = $this->getMockBuilder(PactClientBase::class)
-            ->setConstructorArgs(['top-secret token do not look 0w0'])
-            ->getMock();
-
-        // Configure the stub.
-        $this->client->expects($this->any())
-        ->method('request')
-        ->with(
-            $this->anything(),
-            $this->callback(function ($arg) {
-                $this->assertEquals($this->url, $arg);
-                return true;
-            })
-        )
-        ->will($this->returnValue(Factory::response(200, [], '{"status":"ok"}')));
-
-        $this->service = new ConversationService($this->client);
-    }
-
-    protected function prepareUrl($append = '', array $routeParams = [], array $query = [])
-    {
-        $template = $this->service->getRouteTemplate();
-        $this->url = $this->service->formatEndpoint($template.$append, $routeParams, $query);
-        return $this->url;
     }
 
     /**
      * @dataProvider validDataSetGetConversation
      */
-    public function testValidGetConversations($from, $per, $sort)
+    public function test_get_conversations($from, $per, $sort)
     {
         $query = ['from' => $from, 'per' => $per, 'sort' => $sort];
-        $this->prepareUrl('', [$this->companyId], $query);
-            
+        $this->expectedMethod = Methods::GET;
+        $this->expectedUrl = $this->formatEndpoint('', [$this->companyId], $query);
+
         $response = $this->service->getConversations(
             $this->companyId,
             $from,
@@ -83,13 +56,11 @@ class ConversationServiceTest extends TestCase
     }
 
     /**
-     * @dataProvider invalidDataSetGetConversation
+     * @dataProvider dataset_get_conversation_with_invalid_parameters_throws_invalid_argument
      */
-    public function testInvalidArgumentsGetConversation($from, $per, $sort)
+    public function test_get_conversation_with_invalid_parameters_throws_invalid_argument($from, $per, $sort)
     {
         $this->expectException(InvalidArgumentException::class);
-        $query = ['from' => $from, 'per' => $per, 'sort' => $sort];
-        $this->prepareUrl('', [$this->companyId], $query);
             
         $response = $this->service->getConversations(
             $this->companyId,
@@ -100,7 +71,7 @@ class ConversationServiceTest extends TestCase
         $this->assertSame('ok', $response->status);
     }
 
-    public function invalidDataSetGetConversation()
+    public function dataset_get_conversation_with_invalid_parameters_throws_invalid_argument()
     {
         $longString = str_repeat('a', 256);
         return [
@@ -113,11 +84,12 @@ class ConversationServiceTest extends TestCase
 
 
     /**
-     * @dataProvider validDataSetCreateConversation
+     * @dataProvider dataset_create_conversation
      */
-    public function testValidCreateConversation(string $provider, array $providerParams)
+    public function test_create_conversation(string $provider, array $providerParams)
     {
-        $this->prepareUrl('', [$this->companyId]);
+        $this->expectedMethod = Methods::POST;
+        $this->expectedUrl = $this->formatEndpoint('', [$this->companyId]);
             
         $response = $this->service->createConversation(
             $this->companyId,
@@ -127,16 +99,17 @@ class ConversationServiceTest extends TestCase
         $this->assertSame('ok', $response->status);
     }
 
-    public function validDataSetCreateConversation()
+    public function dataset_create_conversation()
     {
         return [
             ['whatsapp', ['phone'=>'88005553535']]
         ];
     }
 
-    public function testValidGetDetails()
+    public function test_get_details()
     {
-        $this->prepareUrl('/%s', [$this->companyId, $this->conversationId]);
+        $this->expectedMethod = Methods::GET;
+        $this->expectedUrl = $this->formatEndpoint('/%s', [$this->companyId, $this->conversationId]);
             
         $response = $this->service->getDetails(
             $this->companyId,
@@ -145,9 +118,10 @@ class ConversationServiceTest extends TestCase
         $this->assertSame('ok', $response->status);
     }
 
-    public function testValidUpdateAssignee()
+    public function test_update_assignee()
     {
-        $this->prepareUrl('/%s/assign', [$this->companyId, $this->conversationId]);
+        $this->expectedMethod = Methods::PUT;
+        $this->expectedUrl = $this->formatEndpoint('/%s/assign', [$this->companyId, $this->conversationId]);
             
         $response = $this->service->updateAssignee(
             $this->companyId,
@@ -158,12 +132,12 @@ class ConversationServiceTest extends TestCase
     }
 
     /**
-     * @dataProvider invalidDataSetUpdateAssignee
+     * @dataProvider dataset_update_assignee_invalid_id
      */
-    public function testInvalidUpdateAssignee($assigneeId)
+    public function test_update_assignee_invalid_id_throws_invalid_argument($assigneeId)
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->prepareUrl('/%s/assign', [$this->companyId, $this->conversationId]);
+        $this->formatEndpoint('/%s/assign', [$this->companyId, $this->conversationId]);
             
         $response = $this->service->updateAssignee(
             $this->companyId,
@@ -173,7 +147,7 @@ class ConversationServiceTest extends TestCase
         $this->assertSame('ok', $response->status);
     }
 
-    public function invalidDataSetUpdateAssignee()
+    public function dataset_update_assignee_invalid_id()
     {
         return [
             [0]

@@ -56,6 +56,7 @@ class ChannelService extends AbstractService
      */
     public function createChannelUnified(int $companyId, string $provider, array $parameters = [])
     {
+        $this->validator->_(strlen($provider)==0, 'Provider must be not empty string');
         $body = array_merge(
             ['provider' => $provider],
             $parameters
@@ -76,8 +77,8 @@ class ChannelService extends AbstractService
      */
     public function createChannelByToken(int $companyId, string $provider, string $token)
     {
-        $this->validator->_(strlen($token)==0, 'Token must not be empty string');
-        $this->createChannelUnified($companyId, $provider, ['token' => $token]);
+        $this->validator->_(strlen($token)==0, 'Token must be not empty string');
+        return $this->createChannelUnified($companyId, $provider, ['token' => $token]);
     }
 
     /**
@@ -94,8 +95,11 @@ class ChannelService extends AbstractService
         DateTimeInterface $syncMessagesFrom = null, 
         bool $doNotMarkAsRead = null
     ) {
+        if ($syncMessagesFrom !== null) {
+            $syncMessagesFrom = $syncMessagesFrom->getTimestamp();
+        }
         $body = [
-            'sync_messages_from' => $syncMessagesFrom->getTimestamp(),
+            'sync_messages_from' => $syncMessagesFrom,
             'do_not_mark_as_read' => $doNotMarkAsRead
         ];
         return $this->createChannelUnified($companyId, 'whatsapp', $body);
@@ -119,10 +123,15 @@ class ChannelService extends AbstractService
         DateTimeInterface $syncMessagesFrom = null,
         bool $syncComments = null
     ) {
+        $this->validator->_(strlen($login)==0, 'Login must be not empty string');
+        $this->validator->_(strlen($password)==0, 'Password must be not empty string');
+        if ($syncMessagesFrom !== null) {
+            $syncMessagesFrom = $syncMessagesFrom->getTimestamp();
+        }
         $body = [
             'login' => $login,
             'password' => $password,
-            'sync_messages_from' => $syncMessagesFrom->getTimestamp(),
+            'sync_messages_from' => $syncMessagesFrom,
             'sync_comments' => $syncComments
         ];
         return $this->createChannelUnified($companyId, 'instagram', $body);
@@ -166,11 +175,13 @@ class ChannelService extends AbstractService
         string $login,
         string $password
     ) {
+        $this->validator->_(strlen($login)==0, 'Login must be not empty string');
+        $this->validator->_(strlen($password)==0, 'Password must be not empty string');
         $body = [
             'login' => $login,
             'password' => $password
         ];
-        $this->updateChannel($companyId, $conversationId, $body);
+        return $this->updateChannel($companyId, $conversationId, $body);
     }
 
     /**
@@ -186,7 +197,47 @@ class ChannelService extends AbstractService
      */
     public function updateChannelToken(int $companyId, int $conversationId, string $token)
     {
-        $this->validator->_(strlen($token)==0, 'Token must not be empty string');
-        $this->updateChannel($companyId, $conversationId, ['token'=>$token]);
+        $this->validator->_(strlen($token)==0, 'Token must be not empty string');
+        return $this->updateChannel($companyId, $conversationId, ['token'=>$token]);
+    }
+
+    /**
+     * Send first message to whatsapp
+     * @link https://pact-im.github.io/api-doc/#how-to-write-first-message-to-whatsapp
+     * 
+     * @param int $companyId Id of the company
+     * @param int $channelId Id of the conversation
+     * @param string $phone Phone number
+     * @param string $message Message text
+     */
+    public function sendFirstWhatsAppMessage(int $companyId, int $channelId, string $phone, string $message, array $template = null)
+    {
+        $this->validator->_(strlen($phone) === 0, 'Phone must be not empty string');
+
+        if ($template !== null) {
+            $this->validator->_(!key_exists('id', $template), 'Id of template must be set');
+            $this->validator->_(!is_string($template['id']), 'Id of template must be string');
+
+            $this->validator->_(!key_exists('language_code', $template), 'Language of template must be set');
+            $this->validator->_(!is_string($template['language_code']), 'Language of template must be string');
+
+            $this->validator->_(!key_exists('parameters', $template), 'Parameters of template must be set');
+            $this->validator->_(!is_array($template['parameters']), 'Parameters of template must be array');
+        }
+
+        $body = [
+            'phone' => $phone,
+            'message' => $message,
+            'template' => $template
+        ];
+
+        return $this->request(
+            Methods::POST,
+            $this->getRouteTemplate() . '/%s/conversations',
+            [$companyId, $channelId],
+            [],
+            [],
+            $body
+        );
     }
 }

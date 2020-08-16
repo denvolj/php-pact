@@ -100,7 +100,7 @@ class ConversationService extends AbstractService
         
         $body = ["assignee_id" => $assigneeId];
         return $this->request(
-            Methods::GET,
+            Methods::PUT,
             static::$endpoint.'/%s/assign',
             [$companyId, $conversationId],
             [],

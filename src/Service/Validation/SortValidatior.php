@@ -21,7 +21,7 @@ class SortValidatior
             return;
         }
 
-        $msg = "Sorting must be \"asc\" or \"desc\". \"${sort_type}\" given";
+        $msg = "Sorting parameter must be \"asc\" or \"desc\". \"${sort_type}\" given";
         throw new InvalidArgumentException($msg);
     }
 }
