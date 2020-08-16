@@ -45,7 +45,7 @@ class MessageService extends AbstractService
 
     /**
      * Get conversation messages
-     * @see https://pact-im.github.io/api-doc/#get-conversation-messages
+     * @link https://pact-im.github.io/api-doc/#get-conversation-messages
      * 
      * @param int id of the company
      * @param int id of the conversation
@@ -77,7 +77,7 @@ class MessageService extends AbstractService
     }
 
     /**
-     * @see https://pact-im.github.io/api-doc/#send-message
+     * @link https://pact-im.github.io/api-doc/#send-message
      * @param int id of the company
      * @param int id of the conversation
      * @param string Message text

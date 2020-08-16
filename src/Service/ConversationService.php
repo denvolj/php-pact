@@ -24,7 +24,7 @@ class ConversationService extends AbstractService
 
     /**
      * Gets all conversations
-     * @see https://pact-im.github.io/api-doc/#get-all-conversations
+     * @link https://pact-im.github.io/api-doc/#get-all-conversations
      * 
      * @param int id of the company
      * @param string Next page token geted from last request. 
@@ -47,7 +47,7 @@ class ConversationService extends AbstractService
     /**
      * Creates new conversation
      * This endpoint creates conversation in the company
-     * @see https://pact-im.github.io/api-doc/#create-new-conversation
+     * @link https://pact-im.github.io/api-doc/#create-new-conversation
      * 
      * @param int id of the company
      * @param string conversation provider (e.g. "whatsapp")
@@ -69,7 +69,7 @@ class ConversationService extends AbstractService
 
     /**
      * Retrives conversation details from server
-     * @see https://pact-im.github.io/api-doc/#get-conversation-details
+     * @link https://pact-im.github.io/api-doc/#get-conversation-details
      * 
      * @param int id of company
      * @param int id of conversation
@@ -87,7 +87,7 @@ class ConversationService extends AbstractService
     /**
      * Update assignee for conversation
      * This endpoint update assignee of conversation in the company using whatsapp channel
-     * @see https://pact-im.github.io/api-doc/#update-assignee-for-conversation
+     * @link https://pact-im.github.io/api-doc/#update-assignee-for-conversation
      * 
      * @param int id of company
      * @param int id of conversation

@@ -46,7 +46,7 @@ class AttachmentService extends AbstractService
 
     /**
      * Сreates an attachment which can be sent in message
-     * @see https://pact-im.github.io/api-doc/#upload-attachments
+     * @link https://pact-im.github.io/api-doc/#upload-attachments
      * 
      * @param int id of the company
      * @param int id of the conversation
