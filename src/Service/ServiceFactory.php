@@ -10,6 +10,7 @@ use Pact\PactClientInterface;
  * @property AttachmentService $attachments
  * @property ConversationService $conversations
  * @property ChannelService $channels
+ * @property CompanyService $companies
  */
 class ServiceFactory
 {
@@ -24,7 +25,8 @@ class ServiceFactory
         'messages' => MessageService::class,
         'attachments' => AttachmentService::class,
         'conversations' => ConversationService::class,
-        'channels' => ChannelService::class
+        'channels' => ChannelService::class,
+        'companies' => CompanyService::class
     ];
 
     /**

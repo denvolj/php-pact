@@ -30,7 +30,7 @@ class ConversationService extends AbstractService
      * @param string Next page token geted from last request. 
      * Not valid or empty token return first page
      * @param int Number of elements per page. Min 1, max 100, default: 50
-     * @param string Change sorting direction. Avilable values: asc, desc. Default: asc.
+     * @param string Change sorting direction. Available values: asc, desc. Default: asc.
      * @return Json|null
      */
     public function getConversations(int $companyId, ?string $from=null, ?int $per=null, ?string $sort=null)
