@@ -9,7 +9,7 @@ use Pact\Service\Validation\SortValidatior;
 
 /**
  * @property SortValidation $sort
- * @property NumBetweenValidator $sort
+ * @property NumBetweenValidator $between
  * @property UnifiedValidator $_
  */
 class ValidationFactory

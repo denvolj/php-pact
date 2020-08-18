@@ -10,12 +10,6 @@ class MessageService extends AbstractService
 {
     protected static string $endpoint = 'companies/%s/conversations/%s/messages';
 
-    private function isSortCorrect($sort)
-    {
-        return 0 === strcmp('asc', $sort) 
-            || 0 === strcmp('desc', $sort);
-    }
-
     /**
      * @param array Route parameters validation method
      * @throws InvalidArgumentException
@@ -45,7 +39,7 @@ class MessageService extends AbstractService
 
     /**
      * Get conversation messages
-     * @see https://pact-im.github.io/api-doc/#get-conversation-messages
+     * @link https://pact-im.github.io/api-doc/#get-conversation-messages
      * 
      * @param int id of the company
      * @param int id of the conversation
@@ -57,14 +51,8 @@ class MessageService extends AbstractService
      */
     public function getMessages(int $companyId, int $conversationId, string $from=null, int $per=null, string $sort=null)
     {
-        if ($per !== null && ($per < 1 || $per > 100)) {
-            $msg = 'Number of fetching elements must be between 1 and 100.';
-            throw new InvalidArgumentException($msg);
-        }
-
-        if ($sort !== null && !$this->isSortCorrect($sort)) {
-            throw new InvalidArgumentException('Sort parameter must be asc or desc');
-        }
+        $this->validator->between($per, 1, 100, 'Number of fetching elements must be between 1 and 100.');
+        $this->validator->sort($sort);
 
         $query = ['from' => $from, 'per' => $per, 'sort' => $sort];
 
@@ -77,7 +65,7 @@ class MessageService extends AbstractService
     }
 
     /**
-     * @see https://pact-im.github.io/api-doc/#send-message
+     * @link https://pact-im.github.io/api-doc/#send-message
      * @param int id of the company
      * @param int id of the conversation
      * @param string Message text

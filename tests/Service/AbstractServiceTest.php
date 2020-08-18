@@ -27,17 +27,17 @@ class AbstractServiceTest extends TestCase
         $this->abstractService = $this->getMockForAbstractClass(AbstractService::class, [$this->client]);
     }
 
-    public function testGetRouteReturnsEmptyString()
+    public function test_valid_get_route_returns_empty_string()
     {
         $this->assertSame('', $this->abstractService->formatEndpoint('', [], []));
     }
 
-    public function testGetRouteWithQueryReturnsEmptyString()
+    public function test_valid_get_route_with_query()
     {
         $this->assertSame('?test=1', $this->abstractService->formatEndpoint('', [], ['test'=>'1']));
     }
 
-    public function testMakeRequest()
+    public function test_valid_make_request()
     {
         $this->client->expects($this->any())
             ->method('request')
@@ -46,7 +46,7 @@ class AbstractServiceTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
-    public function testMakeRequestHandleHttpNonOkStatus()
+    public function test_non_ok_status_throws_exception()
     {
         $this->expectException(ApiCallException::class);
         $this->expectExceptionMessageMatches('/^Api returned HTTP non-OK status: .+/');

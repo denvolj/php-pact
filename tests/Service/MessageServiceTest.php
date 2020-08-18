@@ -3,105 +3,86 @@
 namespace Pact\Tests\Service;
 
 use Pact\Exception\InvalidArgumentException;
-use Pact\Http\Factory;
-use Pact\PactClientBase;
-use Pact\PactClientInterface;
+use Pact\Http\Methods;
 use Pact\Service\MessageService;
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\MockObject\MockObject;
 
-class MessageServiceTest extends TestCase
+class MessageServiceTest extends ServiceTestCase
 {
-    /** @var PactClientInterface|MockObject */
-    private $client = null;
+    protected static $serviceClass = MessageService::class;
 
     /** @var MessageService */
-    private $messageService = null;
-    private $companyId = null;
-    private $conversationId = null;
-    private $url;
+    protected $service;
+
+    /** @var int $companyId */
+    private int $companyId;
+
+    /** @var int $conversationId */
+    private int $conversationId;
 
     protected function setUp(): void
     {
+        parent::setUp();
+        $this->setUpMocks();
         $this->companyId = random_int(1, 500);
         $this->conversationId = random_int(1, 500);
-
-        /** @var PactClientInterface|MockObject */
-        $this->client = $this->getMockBuilder(PactClientBase::class)
-            ->setConstructorArgs(['top-secret token do not look 0w0'])
-            ->getMock();
-
-        // Configure the stub.
-        $this->client->expects($this->any())
-        ->method('request')
-        ->with(
-            $this->anything(),
-            $this->callback(function ($arg) {
-                $this->assertEquals($this->url, $arg);
-                return true;
-            })
-        )
-        ->will($this->returnValue(Factory::response(200, [], '{"status":"ok"}')));
-
-        $this->messageService = new MessageService($this->client);
     }
 
-    protected function prepareUrl($append = '', array $routeParams = [], array $query = [])
+    public function test_get_messages()
     {
-        $template = $this->messageService->getRouteTemplate();
-        $this->url = $this->messageService->formatEndpoint($template.$append, $routeParams, $query);
-        return $this->url;
-    }
-
-    public function testNormalGetMessages()
-    {
-        $url = $this->prepareUrl('', [$this->companyId, $this->conversationId]);
+        $this->expectedMethod = Methods::GET;
+        $this->expectedUrl = $this->formatEndpoint('', [$this->companyId, $this->conversationId]);
             
-        $response = $this->messageService->getMessages(
+        $response = $this->service->getMessages(
             $this->companyId,
             $this->conversationId
         );
         $this->assertSame('ok', $response->status);
     }
 
-    public function testValidSortGetMessage()
+    /**
+     * @dataProvider dataset_get_messages_with_valid_sorting
+     */
+    public function test_get_messages_with_valid_sorting($sort)
     {
-        foreach (['asc', 'desc'] as $sort) {
-            $query = ['sort' => $sort];
-            $url = $this->prepareUrl('', [$this->companyId, $this->conversationId], $query);
-            $response = $this->messageService->getMessages(
-                $this->companyId,
-                $this->conversationId,
-                null,
-                null,
-                $sort
-            );
-            $this->assertSame('ok', $response->status);
-        }
-    }
-
-    public function testInvalidSortGetMessageThrowsInvalidArgument()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Sort parameter must be asc or desc');
-        $query = ['sort' => 'asdf'];
-        $url = $this->prepareUrl('', [$this->companyId, $this->conversationId], $query);
-        $response = $this->messageService->getMessages(
+        $this->expectedMethod = Methods::GET;
+        $query = ['sort' => $sort];
+        $this->expectedUrl = $this->formatEndpoint('', [$this->companyId, $this->conversationId], $query);
+        $response = $this->service->getMessages(
             $this->companyId,
             $this->conversationId,
             null,
             null,
-            'asdf'
+            $sort
+        );
+        $this->assertSame('ok', $response->status);
+    }
+
+    public function dataset_get_messages_with_valid_sorting()
+    {
+        return [
+            ['asc'], ['desc']
+        ];
+    }
+
+    public function test_get_messages_with_invalid_sort_throws_invalid_argument()
+    {
+        $sort = 'asdf';
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Sorting parameter must be "asc" or "desc". "'. $sort .'" given');
+        $response = $this->service->getMessages(
+            $this->companyId,
+            $this->conversationId,
+            null,
+            null,
+            $sort
         );
     }
 
-    public function testInvalidFetchCountThrowsInvalidArgument()
+    public function test_get_messages_with_invalid_fetch_count_throws_invalid_argument()
     {
         foreach ([0, 101] as $fetchCount) {
-            $query = ['per' => $fetchCount];
-            $url = $this->prepareUrl('', [$this->companyId, $this->conversationId], $query);
             try {
-                $response = $this->messageService->getMessages(
+                $response = $this->service->getMessages(
                     $this->companyId,
                     $this->conversationId,
                     null,
@@ -114,26 +95,12 @@ class MessageServiceTest extends TestCase
         }
     }
 
-    public function testValidFetchCount()
+    public function test_send_message()
     {
-        for ($fetchCount=1; $fetchCount<101;$fetchCount++) {
-            $query = ['per' => $fetchCount];
-            $url = $this->prepareUrl('', [$this->companyId, $this->conversationId], $query);
-            $response = $this->messageService->getMessages(
-                $this->companyId,
-                $this->conversationId,
-                null,
-                $fetchCount
-            );
-        }
-        $this->addToAssertionCount(1);
-    }
-
-    public function testSendMessage()
-    {
-        $url = $this->prepareUrl('', [$this->companyId, $this->conversationId]);
+        $this->expectedMethod = Methods::POST;
+        $this->expectedUrl = $this->formatEndpoint('', [$this->companyId, $this->conversationId]);
         foreach([null, []] as $attachments) {
-            $response = $this->messageService->sendMessage(
+            $response = $this->service->sendMessage(
                 $this->companyId,
                 $this->conversationId,
                 'Message body',
@@ -143,12 +110,11 @@ class MessageServiceTest extends TestCase
         }
     }
 
-    public function testSendMessageInvalidAttachmentsThrowsInvalidArgument()
+    public function test_send_message_with_invalid_attachments_throws_invalid_argument()
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Attachment must be integer');
-        $url = $this->prepareUrl('', [$this->companyId, $this->conversationId]);
-        $response = $this->messageService->sendMessage(
+        $response = $this->service->sendMessage(
             $this->companyId,
             $this->conversationId,
             'Message body',

@@ -1,0 +1,449 @@
+<?php
+
+namespace Pact\Tests\Service;
+
+use DateTime;
+use DateTimeInterface;
+use Pact\Exception\InvalidArgumentException;
+use Pact\Http\Methods;
+use Pact\Service\ChannelService;
+
+class ChannelServiceTest extends ServiceTestCase
+{
+    protected static $serviceClass = ChannelService::class;
+
+    /** @var ChannelService */
+    protected $service;
+
+    /** @var int $companyId */
+    private int $companyId;
+
+    /** @var int $conversationId */
+    private int $conversationId;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->companyId = random_int(1, 500);
+        $this->conversationId = random_int(1, 500);
+    }
+
+    public function test_get_channels_returns_valid_json()
+    {
+        $this->expectedMethod = Methods::GET;
+        $this->expectedUrl = $this->formatEndpoint('', [$this->companyId]);
+            
+        $response = $this->service->getChannels(
+            $this->companyId
+        );
+        $this->assertSame('ok', $response->status);
+    }
+
+    /**
+     * @dataProvider dataset_get_channels_with_valid_sort_returns_valid_json
+     */
+    public function test_get_channels_with_valid_sort_returns_valid_json($sort)
+    {
+        $this->expectedMethod = Methods::GET;
+        $query = ['sort_direction' => $sort];
+        $this->expectedUrl = $this->formatEndpoint('', [$this->companyId], $query);
+        $response = $this->service->getChannels(
+            $this->companyId,
+            null,
+            null,
+            $sort
+        );
+        $this->assertSame('ok', $response->status);
+    }
+
+    public function dataset_get_channels_with_valid_sort_returns_valid_json()
+    {
+        return [
+            ['asc'], ['desc']
+        ];
+    }
+
+    public function test_get_channels_with_invalid_sort_throws_invalid_argument()
+    {
+        $sort = 'asdf';
+        $query = ['sort_direction' => $sort];
+        $this->expectedMethod = Methods::GET;
+        $this->expectedUrl = $this->formatEndpoint('', [$this->companyId], $query);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Sorting parameter must be "asc" or "desc". "'. $sort .'" given');
+        $response = $this->service->getChannels(
+            $this->companyId,
+            null,
+            null,
+            $sort
+        );
+    }
+
+    public function test_create_channel_with_empty_provider_throws_invalid_argument()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Provider must be not empty string');
+        $response = $this->service->createChannelUnified(
+            $this->companyId,
+            ''
+        );
+    }
+
+    /**
+     * @dataProvider dataset_create_channel_by_token_returns_valid_json
+     */
+    public function test_create_channel_by_token_returns_valid_json($provider, $superSecretProviderToken0w0)
+    {
+        $this->expectedMethod = Methods::POST;
+        $this->expectedUrl = $this->formatEndpoint('', [$this->companyId]);
+        
+        $this->setUpMocks(
+            $this->callback(function($body) use ($superSecretProviderToken0w0, $provider)
+            {
+                $this->assertIsArray($body);
+                $this->assertArrayHasKey('provider', $body);
+                $this->assertSame($body['provider'], $provider);
+
+                $this->assertArrayHasKey('token', $body);
+                $this->assertSame($body['token'], $superSecretProviderToken0w0);
+                return true;
+            })
+        );
+
+        $response = $this->service->createChannelByToken(
+            $this->companyId,
+            $provider,
+            $superSecretProviderToken0w0
+        );
+        $this->assertSame('ok', $response->status);
+    }
+
+    public function dataset_create_channel_by_token_returns_valid_json()
+    {
+        return [
+            ['facebook', 'super_secret_facebook_token'],
+            ['vkontakte', 'super_secret_vkontakte_token'],
+            ['telegram', 'super_secret_telegram_token'],
+            ['viber', 'super_secret_viber_token']
+        ];
+    }
+
+    public function test_create_channel_by_token_with_empty_token_throws_invalid_argument()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Token must be not empty string');
+        $response = $this->service->createChannelByToken(
+            $this->companyId,
+            'some-provider',
+            ''
+        );
+    }
+
+    /**
+     * @dataProvider dataset_create_channel_whatsapp
+     */
+    public function test_create_channel_whatsapp(?DateTimeInterface $syncMessagesFrom=null, ?bool $doNotMarkAsRead = null)
+    {
+        $provider = 'whatsapp';
+        $this->expectedMethod = Methods::POST;
+        $this->expectedUrl = $this->formatEndpoint('', [$this->companyId]);
+
+        $this->setUpMocks(
+            $this->callback(function($body) use ($provider, $syncMessagesFrom, $doNotMarkAsRead)
+            {
+                $this->assertIsArray($body);
+                $this->assertArrayHasKey('provider', $body);
+                $this->assertSame($body['provider'], $provider);
+
+                if ($syncMessagesFrom !== null) {
+                    $this->assertArrayHasKey('sync_messages_from', $body);
+                    $this->assertSame($body['sync_messages_from'], $syncMessagesFrom->getTimestamp());
+                }
+                if ($doNotMarkAsRead !== null) {
+                    $this->assertArrayHasKey('do_not_mark_as_read', $body);
+                    $this->assertSame($body['do_not_mark_as_read'], $doNotMarkAsRead);
+                }
+
+                return true;
+            })
+        );
+
+        $response = $this->service->createChannelWhatsApp(
+            $this->companyId,
+            $syncMessagesFrom,
+            $doNotMarkAsRead
+        );
+        $this->assertSame('ok', $response->status);
+    }
+
+    public function dataset_create_channel_whatsapp()
+    {
+        return [
+            [new DateTime(), null],
+            [null, true],
+        ];
+    }
+
+    /**
+     * @dataProvider dataset_create_channel_whatsapp
+     */
+    public function test_create_channel_instagram(?DateTimeInterface $syncMessagesFrom=null, ?bool $syncComments = null)
+    {
+        $provider = 'instagram';
+        $login = 'qwerty';
+        $passw = 'azerty';
+        $this->expectedMethod = Methods::POST;
+        $this->expectedUrl = $this->formatEndpoint('', [$this->companyId]);
+
+        $this->setUpMocks(
+            $this->callback(function($body) use ($provider, $login, $passw, $syncMessagesFrom, $syncComments)
+            {
+                $this->assertIsArray($body);
+                $this->assertArrayHasKey('provider', $body);
+                $this->assertSame($body['provider'], $provider);
+
+                $this->assertArrayHasKey('login', $body);
+                $this->assertSame($body['login'], $login);
+
+                $this->assertArrayHasKey('password', $body);
+                $this->assertSame($body['password'], $passw);
+
+                if ($syncMessagesFrom !== null) {
+                    $this->assertArrayHasKey('sync_messages_from', $body);
+                    $this->assertSame($body['sync_messages_from'], $syncMessagesFrom->getTimestamp());
+                }
+                if ($syncComments !== null) {
+                    $this->assertArrayHasKey('sync_comments', $body);
+                    $this->assertSame($body['sync_comments'], $syncComments);
+                }
+
+                return true;
+            })
+        );
+
+        $response = $this->service->createChannelInstagram(
+            $this->companyId,
+            $login,
+            $passw,
+            $syncMessagesFrom,
+            $syncComments
+        );
+        $this->assertSame('ok', $response->status);
+    }
+
+    public function dataset_create_channel_instagram()
+    {
+        return [
+            [new DateTime(), null],
+            [null, true],
+        ];
+    }
+
+    public function test_create_channel_instagram_with_empty_login_throws_invalid_argument()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Login must be not empty string');
+
+        $response = $this->service->createChannelInstagram(
+            $this->companyId,
+            '',
+            'pass'
+        );
+    }
+
+    public function test_create_channel_instagram_with_empty_password_throws_invalid_argument()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Password must be not empty string');
+
+        $response = $this->service->createChannelInstagram(
+            $this->companyId,
+            'login',
+            ''
+        );
+    }
+
+    public function test_update_channel()
+    {
+        $this->expectedMethod = Methods::PUT;
+        $this->expectedUrl = $this->formatEndpoint('/%s', [$this->companyId, $this->conversationId]);
+
+        $response = $this->service->updateChannel(
+            $this->companyId,
+            $this->conversationId,
+            []
+        );
+        $this->assertSame('ok', $response->status);
+    }
+
+    public function test_update_channel_with_negative_id_throws_invalid_argument()
+    {
+        $this->expectedMethod = Methods::PUT;
+        $this->expectedUrl = $this->formatEndpoint('/%s', [$this->companyId, $this->conversationId]);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Id of conversation must be greater or equal than 0');
+
+        $response = $this->service->updateChannel(
+            $this->companyId,
+            -1,
+            []
+        );
+    }
+
+    public function test_update_channel_instagram_with_empty_login_throws_invalid_argument()
+    {
+        $this->expectedMethod = Methods::PUT;
+        $this->expectedUrl = $this->formatEndpoint('/%s', [$this->companyId, $this->conversationId]);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Login must be not empty string');
+
+        $this->service->updateChannelInstagram(
+            $this->companyId,
+            $this->conversationId,
+            '',
+            'pass'
+        );
+    }
+
+    public function test_update_channel_instagram_with_empty_pass_throws_invalid_argument()
+    {
+        $this->expectedMethod = Methods::PUT;
+        $this->expectedUrl = $this->formatEndpoint('/%s', [$this->companyId, $this->conversationId]);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Password must be not empty string');
+
+        $this->service->updateChannelInstagram(
+            $this->companyId,
+            $this->conversationId,
+            'login',
+            ''
+        );
+    }
+
+    public function test_update_channel_by_empty_token_throws_invalid_argument()
+    {
+        $this->expectedMethod = Methods::PUT;
+        $this->expectedUrl = $this->formatEndpoint('/%s', [$this->companyId, $this->conversationId]);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Token must be not empty string');
+
+        $this->service->updateChannelToken(
+            $this->companyId,
+            $this->conversationId,
+            ''
+        );
+    }
+
+
+    public function test_send_first_message_whatsapp()
+    {
+        $phone = '88005553535';
+        $message = 'Hello world!';
+        // Send first message for whatsapp uses differend endpoint
+        $endpoint = 'companies/%s/channels/%s/conversations';
+        $this->expectedMethod = Methods::POST;
+        $this->expectedUrl = $this->service->formatEndpoint(
+                $endpoint, 
+                [$this->companyId, $this->conversationId], 
+                []
+            );
+
+        $this->setUpMocks(
+            $this->callback(function($body) use ($phone, $message) {
+                $this->assertArrayHasKey('phone', $body);
+                $this->assertSame($body['phone'], $phone);
+
+                $this->assertArrayHasKey('message', $body);
+                $this->assertSame($body['message'], $message);
+                return true;
+            })
+        );
+        
+        $response = $this->service->sendFirstWhatsAppMessage(
+            $this->companyId,
+            $this->conversationId,
+            $phone,
+            $message
+        );
+        $this->assertSame('ok', $response->status);
+    }
+
+    public function test_send_first_message_whatsapp_with_empty_phone_throws_invalid_argument()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Phone must be not empty string');
+
+        // Send first message for whatsapp uses differend endpoint
+        $endpoint = 'companies/%s/channels/%s/conversations';
+        $this->expectedMethod = Methods::POST;
+        $this->expectedUrl = $this->service->formatEndpoint(
+                $endpoint, 
+                [$this->companyId, $this->conversationId], 
+                []
+            );
+        
+        $response = $this->service->sendFirstWhatsAppMessage(
+            $this->companyId,
+            $this->conversationId,
+            '',
+            'Hello world!'
+        );
+    }
+
+
+    /**
+     * @dataProvider dataset_send_first_message_whatsapp_with_wrong_template_settings_throws_invalid_argument
+     */
+    public function test_send_first_message_whatsapp_business_with_wrong_template_settings_throws_invalid_argument($template, $msg) 
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage($msg);
+
+        // Send first message for whatsapp uses differend endpoint
+        $endpoint = 'companies/%s/channels/%s/conversations';
+        $this->expectedMethod = Methods::POST;
+        $this->expectedUrl = $this->service->formatEndpoint(
+                $endpoint, 
+                [$this->companyId, $this->conversationId], 
+                []
+            );
+        
+        $response = $this->service->sendFirstWhatsAppMessage(
+            $this->companyId,
+            $this->conversationId,
+            '88005553535',
+            'Hello world!',
+            $template
+        );
+    }
+
+    public function dataset_send_first_message_whatsapp_with_wrong_template_settings_throws_invalid_argument()
+    {
+        return [
+            'Without templateId' => [
+                ['language_code' => 'en', 'parameters' => []],
+                'Id of template must be set'
+            ],
+            'TemplateId non-string' => [
+                ['id' => [], 'language_code' => 'en', 'parameters' => []],
+                'Id of template must be string'
+            ],
+            'Without language code' => [
+                ['id' => 'hewwo-lord', 'parameters' => []],
+                'Language of template must be set'
+            ],
+            'Language code non-string' => [
+                ['id' => 'hewwo-lord', 'language_code' => [], 'parameters' => []],
+                'Language of template must be string'
+            ],
+            'Without parameters' => [
+                ['id' => 'hewwo-lord', 'language_code' => 'en'],
+                'Parameters of template must be set'
+            ],
+            'Parameters non-array' => [
+                ['id' => 'hewwo-lord', 'language_code' => 'en', 'parameters' => ''],
+                'Parameters of template must be array'
+            ],
+        ];
+    }
+}

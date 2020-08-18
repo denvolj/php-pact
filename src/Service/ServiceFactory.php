@@ -9,6 +9,7 @@ use Pact\PactClientInterface;
  * @property MessageService $messages
  * @property AttachmentService $attachments
  * @property ConversationService $conversations
+ * @property ChannelService $channels
  */
 class ServiceFactory
 {
@@ -22,7 +23,8 @@ class ServiceFactory
     protected $mapping = [
         'messages' => MessageService::class,
         'attachments' => AttachmentService::class,
-        'conversations' => ConversationService::class
+        'conversations' => ConversationService::class,
+        'channels' => ChannelService::class
     ];
 
     /**
