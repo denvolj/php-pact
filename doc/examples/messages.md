@@ -11,7 +11,7 @@ $conversationId = <...>;
 ## Get all messages from conversation
 
 ```php
-$messages = $client->messages->getMessages($company, $conversation);
+$messages = $client->messages->getMessages($companyId, $conversationId);
 ```
 
 Result:
@@ -42,7 +42,7 @@ Result:
 
 ```php
 $msg = 'Hello, World!';
-$messages = $client->messages->sendMessage($company, $conversation, $msg);
+$messages = $client->messages->sendMessage($companyId, $conversationId, $msg);
 ```
 
 Result:
@@ -77,7 +77,7 @@ $attach_1 = $client->attachmehts->uploadAttachment(
     $conversation,
     'https://upload.wikimedia.org/wikipedia/commons/9/9f/Fennec_Fox_Vulpes_zerda.jpg'
     );
-$messages = $client->messages->sendMessage($company, $conversation, $msg, [
+$messages = $client->messages->sendMessage($companyId, $conversationId, $msg, [
     $attach_1->data->external_id,
     $attach_2->data->external_id
 ]);
