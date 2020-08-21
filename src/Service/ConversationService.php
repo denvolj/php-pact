@@ -41,7 +41,7 @@ class ConversationService extends AbstractService
 
         $query = ['from' => $from, 'per' => $per, 'sort' => $sort];
 
-        return $this->request(Methods::GET, static::$endpoint, [$companyId], $query);
+        return $this->request(Methods::GET, $this->getRouteTemplate(), [$companyId], null, $query);
     }
 
     /**
@@ -59,10 +59,8 @@ class ConversationService extends AbstractService
         $body = array_merge(["provider" => $provider], $providerParams);
         return $this->request(
             Methods::POST, 
-            static::$endpoint, 
+            $this->getRouteTemplate(), 
             [$companyId],
-            [],
-            [], 
             $body
         );
     }
@@ -79,7 +77,7 @@ class ConversationService extends AbstractService
     {
         return $this->request(
             Methods::GET,
-            static::$endpoint.'/%s',
+            $this->getRouteTemplate() . '/%s',
             [$companyId, $conversationId]
         );
     }
@@ -101,10 +99,8 @@ class ConversationService extends AbstractService
         $body = ["assignee_id" => $assigneeId];
         return $this->request(
             Methods::PUT,
-            static::$endpoint.'/%s/assign',
+            $this->getRouteTemplate() . '/%s/assign',
             [$companyId, $conversationId],
-            [],
-            [],
             $body
         );
     }

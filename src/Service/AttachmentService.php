@@ -59,10 +59,8 @@ class AttachmentService extends AbstractService
 
         return $this->request(
             Methods::POST,
-            static::$endpoint,
+            $this->getRouteTemplate(),
             [$companyId, $conversationId],
-            [],
-            [],
             $body
         );
     }

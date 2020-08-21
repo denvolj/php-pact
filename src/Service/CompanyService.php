@@ -29,6 +29,7 @@ class CompanyService extends AbstractService
             Methods::GET, 
             $this->getRouteTemplate(),
             [],
+            null,
             $query
         );
     }
@@ -64,9 +65,7 @@ class CompanyService extends AbstractService
         return $this->request(
             Methods::PUT, 
             $this->getRouteTemplate() . '/%s', 
-            [$companyId], 
-            [], 
-            [], 
+            [$companyId],
             $body
         );
     }
@@ -101,8 +100,7 @@ class CompanyService extends AbstractService
             Methods::POST, 
             $this->getRouteTemplate(),
             [],
-            [],
-            [],
-            $body);
+            $body
+        );
     }
 }

@@ -58,8 +58,9 @@ class MessageService extends AbstractService
 
         return $this->request(
             Methods::GET, 
-            static::$endpoint, 
+            $this->getRouteTemplate(), 
             [$companyId, $conversationId], 
+            null,
             $query
         );
     }
@@ -82,10 +83,8 @@ class MessageService extends AbstractService
         
         return $this->request(
             Methods::POST,
-            static::$endpoint,
+            $this->getRouteTemplate(),
             [$companyId, $conversationId],
-            [],
-            [],
             $body
         );
     }

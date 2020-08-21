@@ -41,7 +41,7 @@ class ChannelService extends AbstractService
             'per' => $per,
             'sort_direction' => $sort
         ];
-        return $this->request(Methods::GET, static::$endpoint, [$companyId], $query);
+        return $this->request(Methods::GET, $this->getRouteTemplate(), [$companyId], null, $query);
     }
 
     /**
@@ -61,7 +61,7 @@ class ChannelService extends AbstractService
             ['provider' => $provider],
             $parameters
         );
-        return $this->request(Methods::POST, static::$endpoint, [$companyId], [], [], $body);
+        return $this->request(Methods::POST, $this->getRouteTemplate(), [$companyId], $body);
     }
 
     /**
@@ -151,10 +151,8 @@ class ChannelService extends AbstractService
         $this->validator->_($conversationId<0, 'Id of conversation must be greater or equal than 0');
         return $this->request(
             Methods::PUT, 
-            static::$endpoint . '/%s', 
+            $this->getRouteTemplate() . '/%s', 
             [$companyId, $conversationId],
-            [],
-            [],
             $parameters
         );
     }
@@ -235,8 +233,6 @@ class ChannelService extends AbstractService
             Methods::POST,
             $this->getRouteTemplate() . '/%s/conversations',
             [$companyId, $channelId],
-            [],
-            [],
             $body
         );
     }
