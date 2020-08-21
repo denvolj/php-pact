@@ -5,9 +5,11 @@ namespace Pact;
 use Pact\Service\ServiceFactory;
 
 /**
- * @param \Pact\Service\ConversationService $messages
- * @param \Pact\Service\MessageService $messages
- * @param \Pact\Service\AttachmentService $attachments
+ * @property \Pact\Service\ConversationService $conversations
+ * @property \Pact\Service\MessageService $messages
+ * @property \Pact\Service\AttachmentService $attachments
+ * @property \Pact\Service\CompanyService $companies
+ * @property \Pact\Service\ChannelService $channels
  */
 class PactClient extends PactClientBase
 {

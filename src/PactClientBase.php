@@ -5,7 +5,6 @@ namespace Pact;
 use Pact\Exception\InvalidArgumentException;
 use Pact\Http\ClientInterface;
 use Pact\Http\Factory;
-use Pact\Service\ServiceFactory;
 use Psr\Http\Message\ResponseInterface;
 
 class PactClientBase implements PactClientInterface
