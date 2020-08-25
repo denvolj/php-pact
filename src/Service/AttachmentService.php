@@ -4,6 +4,7 @@ namespace Pact\Service;
 
 use Pact\Exception\FileNotFoundException;
 use Pact\Exception\InvalidArgumentException;
+use Pact\Http\Factory;
 use Pact\Http\Methods;
 use Psr\Http\Message\StreamInterface;
 
@@ -24,24 +25,33 @@ class AttachmentService extends AbstractService
     }
 
     /**
-     * @param Resource|StreamInterface|string file to upload
+     * @param Resource|StreamInterface file to upload
      */
-    private function prepareAttachment($file)
+    private function attachLocalFile(int $companyId, int $conversationId, $file)
     {
-        if (is_string($file)) {
-            if (filter_var($file, FILTER_VALIDATE_URL)) {
-                return ['file_url' => $file];
-            } else if (file_exists($file)) {
-                return ['file' => fopen($file, 'r')];
-            } else {
-                throw new FileNotFoundException("File ${file} not found");
-            }
-        } else if (is_resource($file) || $file instanceof StreamInterface) {
-            return ['file' => $file];
-        }
+        $body = Factory::multipartStreamBuilder();
+        $body->addResource('file', $file);
 
-        $msg = 'Attachment must be string or resource or StreamInterface';
-        throw new InvalidArgumentException($msg);
+        $boundary = $body->getBoundary();
+        return $this->request(
+            Methods::POST,
+            $this->getRouteTemplate(),
+            [$companyId, $conversationId],
+            $body->build(),
+            [],
+            ['Content-Type' => 'multipart/form-data; boundary="'.$boundary.'"']
+        );
+    }
+
+    private function attachRemoteFile(int $companyId, int $conversationId, $url)
+    {
+        $body = ['file_url' => $url];
+        return $this->request(
+            Methods::POST,
+            $this->getRouteTemplate(),
+            [$companyId, $conversationId],
+            $body
+        );
     }
 
     /**
@@ -53,15 +63,24 @@ class AttachmentService extends AbstractService
      * @param Resource|StreamInterface|string file to upload
      * @return Json|null
      */
-    public function uploadFile(int $companyId, int $conversationId, $attachment)
+    public function uploadFile(int $companyId, int $conversationId, $file)
     {
-        $body = $this->prepareAttachment($attachment);
+        if (!is_string($file) && !is_resource($file) && !is_a($file, StreamInterface::class)) {
+            $msg = 'Attachment must be string or resource or StreamInterface';
+            throw new InvalidArgumentException($msg);
+        }
 
-        return $this->request(
-            Methods::POST,
-            $this->getRouteTemplate(),
-            [$companyId, $conversationId],
-            $body
-        );
+        if (is_string($file)) {
+            if (filter_var($file, FILTER_VALIDATE_URL)) {
+                return $this->attachRemoteFile($companyId, $conversationId, $file);
+            } 
+            $file = realpath($file);
+            if ($file === false) {
+                throw new FileNotFoundException("File '$file' not found");
+            } 
+            $file = fopen($file, 'r');
+        }
+
+        return $this->attachLocalFile($companyId, $conversationId, $file);
     }
 }

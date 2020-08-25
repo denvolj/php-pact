@@ -47,6 +47,8 @@ class CompanyServiceTest extends ServiceTestCase
 
         $this->setUpMocks(
             $this->callback(function($body) use ($name, $phone, $description, $webhookUrl) {
+                parse_str($body, $body);
+
                 $this->assertArrayHasKey('name', $body);
                 $this->assertSame($name, $body['name']);
 
@@ -98,6 +100,7 @@ class CompanyServiceTest extends ServiceTestCase
 
         $this->setUpMocks(
             $this->callback(function($body) use ($name, $phone, $description, $webhookUrl) {
+                parse_str($body, $body);
                 $this->assertArrayHasKey('name', $body);
                 $this->assertSame($name, $body['name']);
 

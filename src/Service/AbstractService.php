@@ -85,11 +85,15 @@ abstract class AbstractService implements ServiceInterface
      */
     public function request(string $method, string $endpoint, array $endpointParams=[], $body=null, array $query=[], array $headers=[])
     {
+        if (is_array($body)) {
+            $body = http_build_query($body);
+        }
+
         $uri = $this->formatEndpoint($endpoint, $endpointParams, $query);
         $response = $this->client->request($method, $uri, $headers, $body);
         $statusCode = $response->getStatusCode();
 
-        if (200 >= $statusCode && $statusCode < 300) {
+        if (200 <= $statusCode && $statusCode < 300) {
             return json_decode($response->getBody());
         }
         throw new ApiCallException('Api returned HTTP non-OK status: ' . $statusCode);

@@ -100,6 +100,7 @@ class ChannelServiceTest extends ServiceTestCase
         $this->setUpMocks(
             $this->callback(function($body) use ($superSecretProviderToken0w0, $provider)
             {
+                parse_str($body, $body);
                 $this->assertIsArray($body);
                 $this->assertArrayHasKey('provider', $body);
                 $this->assertSame($body['provider'], $provider);
@@ -151,17 +152,17 @@ class ChannelServiceTest extends ServiceTestCase
         $this->setUpMocks(
             $this->callback(function($body) use ($provider, $syncMessagesFrom, $doNotMarkAsRead)
             {
-                $this->assertIsArray($body);
+                parse_str($body, $body);
                 $this->assertArrayHasKey('provider', $body);
-                $this->assertSame($body['provider'], $provider);
+                $this->assertEquals($body['provider'], $provider);
 
                 if ($syncMessagesFrom !== null) {
                     $this->assertArrayHasKey('sync_messages_from', $body);
-                    $this->assertSame($body['sync_messages_from'], $syncMessagesFrom->getTimestamp());
+                    $this->assertEquals($body['sync_messages_from'], $syncMessagesFrom->getTimestamp());
                 }
                 if ($doNotMarkAsRead !== null) {
                     $this->assertArrayHasKey('do_not_mark_as_read', $body);
-                    $this->assertSame($body['do_not_mark_as_read'], $doNotMarkAsRead);
+                    $this->assertEquals($body['do_not_mark_as_read'], $doNotMarkAsRead);
                 }
 
                 return true;
@@ -198,23 +199,23 @@ class ChannelServiceTest extends ServiceTestCase
         $this->setUpMocks(
             $this->callback(function($body) use ($provider, $login, $passw, $syncMessagesFrom, $syncComments)
             {
-                $this->assertIsArray($body);
+                parse_str($body, $body);
                 $this->assertArrayHasKey('provider', $body);
-                $this->assertSame($body['provider'], $provider);
+                $this->assertEquals($body['provider'], $provider);
 
                 $this->assertArrayHasKey('login', $body);
-                $this->assertSame($body['login'], $login);
+                $this->assertEquals($body['login'], $login);
 
                 $this->assertArrayHasKey('password', $body);
-                $this->assertSame($body['password'], $passw);
+                $this->assertEquals($body['password'], $passw);
 
                 if ($syncMessagesFrom !== null) {
                     $this->assertArrayHasKey('sync_messages_from', $body);
-                    $this->assertSame($body['sync_messages_from'], $syncMessagesFrom->getTimestamp());
+                    $this->assertEquals($body['sync_messages_from'], $syncMessagesFrom->getTimestamp());
                 }
                 if ($syncComments !== null) {
                     $this->assertArrayHasKey('sync_comments', $body);
-                    $this->assertSame($body['sync_comments'], $syncComments);
+                    $this->assertEquals($body['sync_comments'], $syncComments);
                 }
 
                 return true;
@@ -350,6 +351,7 @@ class ChannelServiceTest extends ServiceTestCase
 
         $this->setUpMocks(
             $this->callback(function($body) use ($phone, $message) {
+                parse_str($body, $body);
                 $this->assertArrayHasKey('phone', $body);
                 $this->assertSame($body['phone'], $phone);
 

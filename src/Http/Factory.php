@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
 use Buzz\Client\Curl as HttpClient;
+use Http\Message\MultipartStream\MultipartStreamBuilder;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\Request;
 use Nyholm\Psr7\Response;
@@ -20,6 +21,16 @@ use Nyholm\Psr7\Response;
  */
 class Factory
 {
+    private static $psrFactory = null;
+    
+    public static function getPsr17Factory()
+    {
+        if (static::$psrFactory === null) {
+            static::$psrFactory = new Psr17Factory();
+        }
+        return static::$psrFactory;
+    }
+
     /**
      * @param string $method HTTP method
      * @param string|UriInterface $uri URI
@@ -48,7 +59,14 @@ class Factory
      */
     public static function client(): ClientInterface
     {
-        $psrFactory = new Psr17Factory();
-        return new HttpClient($psrFactory);
+        return new HttpClient(static::getPsr17Factory());
+    }
+
+    /**
+     * @return MultipartStreamBuilder
+     */
+    public static function multipartStreamBuilder(): MultipartStreamBuilder
+    {
+        return new MultipartStreamBuilder(static::getPsr17Factory());
     }
 }

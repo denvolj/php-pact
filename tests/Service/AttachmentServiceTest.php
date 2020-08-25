@@ -39,12 +39,15 @@ class AttachmentServiceTest extends ServiceTestCase
 
         $this->setUpMocks(
                 $this->callback(function($body) {
+                    if (!is_array($body)) {
+                        return true;
+                    }
+                    
                     $this->assertArrayHasKey('file', $body);
                     $this->assertIsResource($body['file']);
                     return true;
                 })
             );
-        
         $response = $this->service->uploadFile(
             $this->companyId,
             $this->conversationId,
@@ -73,6 +76,7 @@ class AttachmentServiceTest extends ServiceTestCase
 
         $this->setUpMocks(
                 $this->callback(function($body) {
+                    parse_str($body, $body);
                     $this->assertArrayHasKey('file_url', $body);
                     $this->assertIsString($body['file_url']);
                     $this->assertTrue(
