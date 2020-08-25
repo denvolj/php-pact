@@ -236,4 +236,46 @@ class ChannelService extends AbstractService
             $body
         );
     }
+    
+    /**
+     * @link https://pact-im.github.io/api-doc/#request-code-instagram-only
+     * 
+     * @param int $companyId Id of the compnay
+     * @param int $channelId Id of the channel
+     * @param array $parameters
+     * @return Json|null
+     */
+    public function requestChannelCode(
+        int $companyId, 
+        int $channelId, 
+        array $parameters
+    ) {
+        return $this->request(
+            Methods::POST,
+            $this->getRouteTemplate() . '/request_code',
+            [$companyId, $channelId],
+            $parameters
+        );
+    }
+
+    /**
+     * @link https://pact-im.github.io/api-doc/#confirm-code-instagram-only
+     * 
+     * @param int $companyId Id of the compnay
+     * @param int $channelId Id of the channel
+     * @param array $parameters
+     * @return Json|null
+     */
+    public function confirmChannelCode(
+        int $companyId, 
+        int $channelId, 
+        array $parameters
+    ) {
+        return $this->request(
+            Methods::POST,
+            $this->getRouteTemplate() . '/confirm',
+            [$companyId, $channelId],
+            $parameters
+        );
+    }
 }
