@@ -236,6 +236,22 @@ class ChannelService extends AbstractService
             $body
         );
     }
+
+    /**
+     * Method deletes (disables) the channel
+     * @link https://pact-im.github.io/api-doc/#delete-channel
+     * 
+     * @param int $companyId Id of the company
+     * @param int $channelId Id of the conversation
+     */
+    public function deleteChannel(int $companyId, int $channelId)
+    {
+        return $this->request(
+            Methods::DELETE,
+            $this->getRouteTemplate() . '/%s',
+            [$companyId, $channelId],
+        );
+    }
     
     /**
      * @link https://pact-im.github.io/api-doc/#request-code-instagram-only
@@ -252,7 +268,7 @@ class ChannelService extends AbstractService
     ) {
         return $this->request(
             Methods::POST,
-            $this->getRouteTemplate() . '/request_code',
+            $this->getRouteTemplate() . '/%s/request_code',
             [$companyId, $channelId],
             $parameters
         );
@@ -273,7 +289,7 @@ class ChannelService extends AbstractService
     ) {
         return $this->request(
             Methods::POST,
-            $this->getRouteTemplate() . '/confirm',
+            $this->getRouteTemplate() . '/%s/confirm',
             [$companyId, $channelId],
             $parameters
         );

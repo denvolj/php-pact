@@ -448,4 +448,42 @@ class ChannelServiceTest extends ServiceTestCase
             ],
         ];
     }
+
+    public function test_delete_channel()
+    {
+        $this->expectedMethod = Methods::DELETE;
+        $this->expectedUrl = $this->formatEndpoint('/%s', [$this->companyId, $this->conversationId]);
+
+        $response = $this->service->deleteChannel(
+            $this->companyId,
+            $this->conversationId
+        );
+        $this->assertSame('ok', $response->status);
+    }
+
+    public function test_request_channel_code()
+    {
+        $this->expectedMethod = Methods::POST;
+        $this->expectedUrl = $this->formatEndpoint('/%s/request_code', [$this->companyId, $this->conversationId]);
+
+        $response = $this->service->requestChannelCode(
+            $this->companyId,
+            $this->conversationId,
+            []
+        );
+        $this->assertSame('ok', $response->status);
+    }
+
+    public function test_confirm_channel_code()
+    {
+        $this->expectedMethod = Methods::POST;
+        $this->expectedUrl = $this->formatEndpoint('/%s/confirm', [$this->companyId, $this->conversationId]);
+
+        $response = $this->service->confirmChannelCode(
+            $this->companyId,
+            $this->conversationId,
+            []
+        );
+        $this->assertSame('ok', $response->status);
+    }
 }
