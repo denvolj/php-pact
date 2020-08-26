@@ -16,6 +16,13 @@ To use the bindings, use Composer's autoload:
 require_once('vendor/autoload.php');
 ```
 
-## Examples
+## Usage
 
-See documentation in examples [here](./doc/examples/getting_started.md).
+```php
+<?php
+$token = '<your super secret token>';
+$client = new \Pact\PactClient($token);
+```
+
+And you ready to go!
+See documentation [here](https://pact-im.github.io/api-doc/#introduction).
