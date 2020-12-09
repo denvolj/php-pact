@@ -21,10 +21,10 @@ class ServiceTestCase extends TestCase
     protected $client;
 
     /** @var string $expectedMethod */
-    protected string $expectedMethod;
+    protected $expectedMethod;
 
     /** @var string $expectedUrl endpoint */
-    protected string $expectedUrl;
+    protected $expectedUrl;
 
     /** @var ResponseInterface */
     protected $serviceResponse = null;

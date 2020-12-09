@@ -14,7 +14,7 @@ class CompanyServiceTest extends ServiceTestCase
     protected $service;
 
     /** @var int $companyId */
-    private int $companyId;
+    private $companyId;
 
     protected function setUp(): void
     {

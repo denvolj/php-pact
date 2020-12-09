@@ -20,7 +20,7 @@ abstract class AbstractService implements ServiceInterface
      * @var string Formatted string contains pattern for route formatting
      * @example "/companies/%s/conversation/%s/
      */
-    protected static string $endpoint = '';
+    protected $endpoint = '';
 
     /**
      * @var PactClientInterface

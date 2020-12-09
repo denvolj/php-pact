@@ -10,7 +10,7 @@ use Psr\Http\Message\StreamInterface;
 
 class AttachmentService extends AbstractService
 {
-    protected static string $endpoint = 'companies/%s/conversations/%s/messages/attachments';
+    protected $endpoint = 'companies/%s/conversations/%s/messages/attachments';
 
     /**
      * @param array Route parameters validation method

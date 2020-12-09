@@ -6,7 +6,7 @@ use Pact\Http\Methods;
 
 class ConversationService extends AbstractService
 {
-    protected static string $endpoint = '/companies/%s/conversations';
+    protected $endpoint = '/companies/%s/conversations';
 
     /**
      * @param array Route parameters validation method

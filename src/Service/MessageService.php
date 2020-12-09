@@ -8,7 +8,7 @@ use PHPUnit\Util\Json;
 
 class MessageService extends AbstractService
 {
-    protected static string $endpoint = 'companies/%s/conversations/%s/messages';
+    protected $endpoint = 'companies/%s/conversations/%s/messages';
 
     /**
      * @param array Route parameters validation method

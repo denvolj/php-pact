@@ -14,10 +14,10 @@ class MessageServiceTest extends ServiceTestCase
     protected $service;
 
     /** @var int $companyId */
-    private int $companyId;
+    private $companyId;
 
     /** @var int $conversationId */
-    private int $conversationId;
+    private $conversationId;
 
     protected function setUp(): void
     {

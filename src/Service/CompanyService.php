@@ -6,7 +6,7 @@ use Pact\Http\Methods;
 
 class CompanyService extends AbstractService
 {
-    protected static string $endpoint = '/companies';
+    protected $endpoint = '/companies';
 
     /**
      * This method return list of all user companies

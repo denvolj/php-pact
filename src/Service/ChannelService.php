@@ -9,7 +9,7 @@ use Pact\Service\AbstractService;
 
 class ChannelService extends AbstractService
 {
-    protected static string $endpoint = 'companies/%s/channels';
+    protected $endpoint = 'companies/%s/channels';
 
     /**
      * @param array Route parameters validation method
