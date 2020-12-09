@@ -15,7 +15,7 @@ use Pact\PactClientInterface;
 class ServiceFactory
 {
     /** @var PactClientInterface */
-    protected $client = null;
+    protected static $client = null;
 
     /** @var array */
     protected $services = [];
