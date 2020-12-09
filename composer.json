@@ -7,8 +7,8 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "DenVolzhankin & contributors",
-            "homepage": "https://github.com/denvolj/php-pact"
+            "name": "Pact LLC",
+            "homepage": "https://github.com/pact-im/sdk-php"
         }
     ],
     "require": {
