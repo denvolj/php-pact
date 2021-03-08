@@ -10,6 +10,7 @@ use Pact\Service\ServiceFactory;
  * @property \Pact\Service\AttachmentService $attachments
  * @property \Pact\Service\CompanyService $companies
  * @property \Pact\Service\ChannelService $channels
+ * @property \Pact\Service\MessageDeliveryJobService $jobs
  */
 class PactClient extends PactClientBase
 {
