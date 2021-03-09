@@ -11,6 +11,7 @@ use Pact\PactClientInterface;
  * @property ConversationService $conversations
  * @property ChannelService $channels
  * @property CompanyService $companies
+ * @property MessageDeliveryJobService $jobs
  */
 class ServiceFactory
 {
@@ -26,13 +27,14 @@ class ServiceFactory
         'attachments' => AttachmentService::class,
         'conversations' => ConversationService::class,
         'channels' => ChannelService::class,
-        'companies' => CompanyService::class
+        'companies' => CompanyService::class,
+        'jobs' => MessageDeliveryJobService::class
     ];
 
     /**
      * Constructor
-     * 
-     * @param PactClientInterface 
+     *
+     * @param PactClientInterface
      */
     public function __construct(PactClientInterface $client)
     {
@@ -42,7 +44,7 @@ class ServiceFactory
     /**
      * Creating new instance of service if not done yet
      * and returns it back
-     * 
+     *
      * @param string Name of service
      * @return ServiceInterface
      */
