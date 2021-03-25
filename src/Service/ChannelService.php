@@ -24,13 +24,13 @@ class ChannelService extends AbstractService
     /**
      * This method returns all the company channels.
      * @link https://pact-im.github.io/api-doc/#get-all-channels
-     * 
+     *
      * @param int $companyId Id of the company
      * @param string $from Next page token geted from last request. Not valid or empty token return first page
      * @param int $per Number of elements per page. Default: 50
      * @param string $sort Change sorting direction (sorting by id). Avilable values: asc, desc. Default: asc.
      */
-    public function getChannels(int $companyId, string $from = null, int $per = null, string $sort = null) 
+    public function getChannels(int $companyId, string $from = null, int $per = null, string $sort = null)
     {
         $this->validator->_(strlen($from)>255, 'Parameter 2 must be length less or equal 255');
         $this->validator->between($per, 1, 100);
@@ -47,9 +47,9 @@ class ChannelService extends AbstractService
     /**
      * Unified method that can create channel in company.
      * @link https://pact-im.github.io/api-doc/#create-new-channel
-     * @note You can connect only one channel per one company for each provider. 
+     * @note You can connect only one channel per one company for each provider.
      *       Contact with support if you want to use more than one channel
-     * 
+     *
      * @param int $companyId Id of the company
      * @param string $provider
      * @param array $parameters
@@ -69,7 +69,7 @@ class ChannelService extends AbstractService
      * @link https://pact-im.github.io/api-doc/#create-new-channel
      * @note List of supported channels that can be created by token
      *       you can see in link above
-     * 
+     *
      * @param int $companyId Id of the company
      * @param string $provider (facebook, viber, vk, ...)
      * @param string $token
@@ -84,15 +84,15 @@ class ChannelService extends AbstractService
     /**
      * This method create a new channel for WhatsApp
      * @link https://pact-im.github.io/api-doc/#create-new-channel
-     * 
+     *
      * @param int $companyId Id of the company
      * @param DateTimeInterface $syncMessagesFrom Only messages created after will be synchronized
      * @param bool $doNotMarkAsRead Do not mark chats as read after synchronization
      * @return Json|null
      */
     public function createChannelWhatsApp(
-        int $companyId, 
-        DateTimeInterface $syncMessagesFrom = null, 
+        int $companyId,
+        DateTimeInterface $syncMessagesFrom = null,
         bool $doNotMarkAsRead = null
     ) {
         if ($syncMessagesFrom !== null) {
@@ -108,7 +108,7 @@ class ChannelService extends AbstractService
     /**
      * This method create a new channel for WhatsApp
      * @link https://pact-im.github.io/api-doc/#create-new-channel
-     * 
+     *
      * @param int $companyId Id of the company
      * @param string $login Instagram login
      * @param string $password Instagram passowrd
@@ -117,7 +117,7 @@ class ChannelService extends AbstractService
      * @return Json|null
      */
     public function createChannelInstagram(
-        int $companyId, 
+        int $companyId,
         string $login,
         string $password,
         DateTimeInterface $syncMessagesFrom = null,
@@ -140,9 +140,9 @@ class ChannelService extends AbstractService
     /**
      * This method updates existing channel in the company
      * @link https://pact-im.github.io/api-doc/#update-channel
-     * 
-     * @param int $companyId 
-     * @param int $conversationId 
+     *
+     * @param int $companyId
+     * @param int $conversationId
      * @param array $parameters
      * @return Json|null
      */
@@ -150,8 +150,8 @@ class ChannelService extends AbstractService
     {
         $this->validator->_($conversationId<0, 'Id of conversation must be greater or equal than 0');
         return $this->request(
-            Methods::PUT, 
-            $this->getRouteTemplate() . '/%s', 
+            Methods::PUT,
+            $this->getRouteTemplate() . '/%s',
             [$companyId, $conversationId],
             $parameters
         );
@@ -160,9 +160,9 @@ class ChannelService extends AbstractService
     /**
      * This method updates instagramm channel
      * @link https://pact-im.github.io/api-doc/#update-channel
-     * 
-     * @param int $companyId 
-     * @param int $conversationId 
+     *
+     * @param int $companyId
+     * @param int $conversationId
      * @param string $login Instagram login
      * @param string $password Instagram password
      * @return Json|null
@@ -187,9 +187,9 @@ class ChannelService extends AbstractService
      * @link https://pact-im.github.io/api-doc/#update-channel
      * @note List of supported channels that can be created by token
      *       you can see in link above
-     * 
-     * @param int $companyId 
-     * @param int $conversationId 
+     *
+     * @param int $companyId
+     * @param int $conversationId
      * @param string $token
      * @return Json|null
      */
@@ -202,7 +202,7 @@ class ChannelService extends AbstractService
     /**
      * Send first message to whatsapp
      * @link https://pact-im.github.io/api-doc/#how-to-write-first-message-to-whatsapp
-     * 
+     *
      * @param int $companyId Id of the company
      * @param int $channelId Id of the conversation
      * @param string $phone Phone number
@@ -240,7 +240,7 @@ class ChannelService extends AbstractService
     /**
      * Method deletes (disables) the channel
      * @link https://pact-im.github.io/api-doc/#delete-channel
-     * 
+     *
      * @param int $companyId Id of the company
      * @param int $channelId Id of the conversation
      */
@@ -249,21 +249,21 @@ class ChannelService extends AbstractService
         return $this->request(
             Methods::DELETE,
             $this->getRouteTemplate() . '/%s',
-            [$companyId, $channelId],
+            [$companyId, $channelId]
         );
     }
-    
+
     /**
      * @link https://pact-im.github.io/api-doc/#request-code-instagram-only
-     * 
+     *
      * @param int $companyId Id of the compnay
      * @param int $channelId Id of the channel
      * @param array $parameters
      * @return Json|null
      */
     public function requestChannelCode(
-        int $companyId, 
-        int $channelId, 
+        int $companyId,
+        int $channelId,
         array $parameters
     ) {
         return $this->request(
@@ -276,15 +276,15 @@ class ChannelService extends AbstractService
 
     /**
      * @link https://pact-im.github.io/api-doc/#confirm-code-instagram-only
-     * 
+     *
      * @param int $companyId Id of the compnay
      * @param int $channelId Id of the channel
      * @param array $parameters
      * @return Json|null
      */
     public function confirmChannelCode(
-        int $companyId, 
-        int $channelId, 
+        int $companyId,
+        int $channelId,
         array $parameters
     ) {
         return $this->request(
