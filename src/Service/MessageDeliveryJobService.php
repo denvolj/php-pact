@@ -8,7 +8,7 @@ use PHPUnit\Util\Json;
 
 class MessageDeliveryJobService extends AbstractService
 {
-    protected $endpoint = 'companies/%s/channels/%s/jobs/%s';
+    protected static $endpoint = 'companies/%s/channels/%s/jobs/%s';
 
     /**
      * This method return info about message delivery job
