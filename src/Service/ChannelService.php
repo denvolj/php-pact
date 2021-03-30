@@ -9,7 +9,7 @@ use Pact\Service\AbstractService;
 
 class ChannelService extends AbstractService
 {
-    protected static $endpoint = 'companies/%s/channels';
+    public const SERVICE_ENDPOINT = 'companies/%s/channels';
 
     /**
      * @param array Route parameters validation method
@@ -41,7 +41,7 @@ class ChannelService extends AbstractService
             'per' => $per,
             'sort_direction' => $sort
         ];
-        return $this->request(Methods::GET, $this->getRouteTemplate(), [$companyId], null, $query);
+        return $this->request(Methods::GET, static::SERVICE_ENDPOINT, [$companyId], null, $query);
     }
 
     /**
@@ -61,7 +61,7 @@ class ChannelService extends AbstractService
             ['provider' => $provider],
             $parameters
         );
-        return $this->request(Methods::POST, $this->getRouteTemplate(), [$companyId], $body);
+        return $this->request(Methods::POST, static::SERVICE_ENDPOINT, [$companyId], $body);
     }
 
     /**
@@ -151,7 +151,7 @@ class ChannelService extends AbstractService
         $this->validator->_($conversationId<0, 'Id of conversation must be greater or equal than 0');
         return $this->request(
             Methods::PUT,
-            $this->getRouteTemplate() . '/%s',
+            static::SERVICE_ENDPOINT . '/%s',
             [$companyId, $conversationId],
             $parameters
         );
@@ -231,7 +231,7 @@ class ChannelService extends AbstractService
 
         return $this->request(
             Methods::POST,
-            $this->getRouteTemplate() . '/%s/conversations',
+            static::SERVICE_ENDPOINT . '/%s/conversations',
             [$companyId, $channelId],
             $body
         );
@@ -248,7 +248,7 @@ class ChannelService extends AbstractService
     {
         return $this->request(
             Methods::DELETE,
-            $this->getRouteTemplate() . '/%s',
+            static::SERVICE_ENDPOINT . '/%s',
             [$companyId, $channelId]
         );
     }
@@ -268,7 +268,7 @@ class ChannelService extends AbstractService
     ) {
         return $this->request(
             Methods::POST,
-            $this->getRouteTemplate() . '/%s/request_code',
+            static::SERVICE_ENDPOINT . '/%s/request_code',
             [$companyId, $channelId],
             $parameters
         );
@@ -289,7 +289,7 @@ class ChannelService extends AbstractService
     ) {
         return $this->request(
             Methods::POST,
-            $this->getRouteTemplate() . '/%s/confirm',
+            static::SERVICE_ENDPOINT . '/%s/confirm',
             [$companyId, $channelId],
             $parameters
         );

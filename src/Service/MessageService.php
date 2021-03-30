@@ -8,7 +8,7 @@ use PHPUnit\Util\Json;
 
 class MessageService extends AbstractService
 {
-    protected static $endpoint = 'companies/%s/conversations/%s/messages';
+    public const SERVICE_ENDPOINT = 'companies/%s/conversations/%s/messages';
 
     /**
      * @param array Route parameters validation method
@@ -58,7 +58,7 @@ class MessageService extends AbstractService
 
         return $this->request(
             Methods::GET, 
-            $this->getRouteTemplate(), 
+            static::SERVICE_ENDPOINT, 
             [$companyId, $conversationId], 
             null,
             $query
@@ -83,7 +83,7 @@ class MessageService extends AbstractService
         
         return $this->request(
             Methods::POST,
-            $this->getRouteTemplate(),
+            static::SERVICE_ENDPOINT,
             [$companyId, $conversationId],
             $body
         );

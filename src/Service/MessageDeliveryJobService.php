@@ -8,7 +8,7 @@ use PHPUnit\Util\Json;
 
 class MessageDeliveryJobService extends AbstractService
 {
-    protected static $endpoint = 'companies/%s/channels/%s/jobs/%s';
+    public const SERVICE_ENDPOINT = 'companies/%s/channels/%s/jobs/%s';
 
     /**
      * This method return info about message delivery job
@@ -27,7 +27,7 @@ class MessageDeliveryJobService extends AbstractService
 
         return $this->request(
             Methods::GET,
-            $this->getRouteTemplate(),
+            static::SERVICE_ENDPOINT,
             [$companyId, $channelId, $jobId]
         );
     }

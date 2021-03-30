@@ -82,7 +82,7 @@ class ServiceTestCase extends TestCase
 
     protected function formatEndpoint($append = '', array $routeParams = [], array $query = [])
     {
-        $template = $this->service->getRouteTemplate();
+        $template = $this->service::SERVICE_ENDPOINT;
         return $this->service->formatEndpoint($template.$append, $routeParams, $query);
     }
 }

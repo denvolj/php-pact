@@ -10,7 +10,7 @@ use Psr\Http\Message\StreamInterface;
 
 class AttachmentService extends AbstractService
 {
-    protected static $endpoint = 'companies/%s/conversations/%s/messages/attachments';
+    public const SERVICE_ENDPOINT = 'companies/%s/conversations/%s/messages/attachments';
 
     /**
      * @param array Route parameters validation method
@@ -35,7 +35,7 @@ class AttachmentService extends AbstractService
         $boundary = $body->getBoundary();
         return $this->request(
             Methods::POST,
-            $this->getRouteTemplate(),
+            static::SERVICE_ENDPOINT,
             [$companyId, $conversationId],
             $body->build(),
             [],
@@ -48,7 +48,7 @@ class AttachmentService extends AbstractService
         $body = ['file_url' => $url];
         return $this->request(
             Methods::POST,
-            $this->getRouteTemplate(),
+            static::SERVICE_ENDPOINT,
             [$companyId, $conversationId],
             $body
         );

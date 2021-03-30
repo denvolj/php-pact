@@ -6,7 +6,7 @@ use Pact\Http\Methods;
 
 class ConversationService extends AbstractService
 {
-    protected static $endpoint = '/companies/%s/conversations';
+    public const SERVICE_ENDPOINT = '/companies/%s/conversations';
 
     /**
      * @param array Route parameters validation method
@@ -41,7 +41,7 @@ class ConversationService extends AbstractService
 
         $query = ['from' => $from, 'per' => $per, 'sort' => $sort];
 
-        return $this->request(Methods::GET, $this->getRouteTemplate(), [$companyId], null, $query);
+        return $this->request(Methods::GET, static::SERVICE_ENDPOINT, [$companyId], null, $query);
     }
 
     /**
@@ -59,7 +59,7 @@ class ConversationService extends AbstractService
         $body = array_merge(["provider" => $provider], $providerParams);
         return $this->request(
             Methods::POST, 
-            $this->getRouteTemplate(), 
+            static::SERVICE_ENDPOINT, 
             [$companyId],
             $body
         );
@@ -77,7 +77,7 @@ class ConversationService extends AbstractService
     {
         return $this->request(
             Methods::GET,
-            $this->getRouteTemplate() . '/%s',
+            static::SERVICE_ENDPOINT . '/%s',
             [$companyId, $conversationId]
         );
     }
@@ -99,7 +99,7 @@ class ConversationService extends AbstractService
         $body = ["assignee_id" => $assigneeId];
         return $this->request(
             Methods::PUT,
-            $this->getRouteTemplate() . '/%s/assign',
+            static::SERVICE_ENDPOINT . '/%s/assign',
             [$companyId, $conversationId],
             $body
         );

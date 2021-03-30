@@ -6,7 +6,7 @@ use Pact\Http\Methods;
 
 class CompanyService extends AbstractService
 {
-    protected static $endpoint = '/companies';
+    public const SERVICE_ENDPOINT = '/companies';
 
     /**
      * This method return list of all user companies
@@ -27,7 +27,7 @@ class CompanyService extends AbstractService
 
         return $this->request(
             Methods::GET, 
-            $this->getRouteTemplate(),
+            static::SERVICE_ENDPOINT,
             [],
             null,
             $query
@@ -64,7 +64,7 @@ class CompanyService extends AbstractService
 
         return $this->request(
             Methods::PUT, 
-            $this->getRouteTemplate() . '/%s', 
+            static::SERVICE_ENDPOINT . '/%s', 
             [$companyId],
             $body
         );
@@ -98,7 +98,7 @@ class CompanyService extends AbstractService
 
         return $this->request(
             Methods::POST, 
-            $this->getRouteTemplate(),
+            static::SERVICE_ENDPOINT,
             [],
             $body
         );
